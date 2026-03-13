@@ -97,6 +97,25 @@ class WelcomeScreen extends StatelessWidget {
               ),
 
               const SizedBox(height: 40), // extra space at very bottom
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    'ENGLISH',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(width: 24),
+                  const Text('සිංහල', style: TextStyle(color: Colors.white60)),
+                  const SizedBox(width: 24),
+                  const Text('தமிழ்', style: TextStyle(color: Colors.white60)),
+                ],
+              ),
+
+              const SizedBox(height: 60), // generous bottom padding
             ],
           ),
         ),
