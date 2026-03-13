@@ -39,6 +39,43 @@ class WelcomeScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 80), // ← extra space below text for now
+
+              const SizedBox(height: 40), // space before button
+
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: ElevatedButton(
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Get Started clicked – next step coming soon!',
+                        ),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF6A48FF),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: const Text(
+                    "Get Started",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(
+                height: 24,
+              ), // space after button (for next elements later)
             ],
           ),
         ),
