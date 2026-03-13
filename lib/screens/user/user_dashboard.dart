@@ -89,15 +89,40 @@ class UserDashboard extends StatelessWidget {
 
           // Temporary placeholder for the rest of the body
           Expanded(
-            child: Center(
-              child: Text(
-                'Dashboard content coming in next steps',
-                style: TextStyle(fontSize: 20, color: Colors.black54),
-              ),
+            child: ListView(
+              padding: const EdgeInsets.all(20),
+              children: [
+                _buildOptionCard(
+                  "Book a\nMechanic",
+                  'assets/images/mechanic.jpg',
+                ),
+                const SizedBox(height: 15),
+                _buildOptionCard("Book a\nGarage", 'assets/images/garage.jpg'),
+              ],
             ),
           ),
         ],
       ),
     );
   }
+}
+
+Widget _buildOptionCard(String title, String imagePath) {
+  return Container(
+    height: 160,
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(25),
+      image: DecorationImage(image: AssetImage(imagePath), fit: BoxFit.cover),
+    ),
+    padding: const EdgeInsets.all(25),
+    alignment: Alignment.centerLeft,
+    child: Text(
+      title,
+      style: const TextStyle(
+        color: Colors.white,
+        fontSize: 26,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+  );
 }
