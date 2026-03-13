@@ -2,6 +2,7 @@
 // Handles login/signup for a given role (provider or driver)
 
 import 'package:flutter/material.dart';
+import '../user/user_dashboard.dart';
 
 class AuthScreen extends StatelessWidget {
   final String role;
@@ -104,7 +105,7 @@ class AuthScreen extends StatelessWidget {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const UserDashboardPlaceholder(),
+                      builder: (context) => const UserDashboard(),
                     ),
                   );
                 }
