@@ -2,6 +2,8 @@
 // Shows app branding, call-to-action buttons, and language options
 
 import 'package:flutter/material.dart';
+import 'package:roadresq/screens/common/role_selection_screen.dart';
+import 'role_selection_screen.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -50,12 +52,10 @@ class WelcomeScreen extends StatelessWidget {
                 height: 56,
                 child: ElevatedButton(
                   onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'Get Started clicked – next step coming soon!',
-                        ),
-                        duration: Duration(seconds: 2),
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const RoleSelectionScreen(),
                       ),
                     );
                   },
