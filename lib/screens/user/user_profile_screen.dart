@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import '../common/role_selection_screen.dart';
 
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({super.key});
@@ -169,6 +170,16 @@ _buildTile(Icons.privacy_tip_outlined, "Privacy Policy", () {
 _buildTile(Icons.help_outline, "Support Center", () {
   ScaffoldMessenger.of(context).showSnackBar(
     const SnackBar(content: Text('Support Center tapped')),
+  );
+}),
+const SizedBox(height: 20),
+
+// Logout tile
+_buildTile(Icons.logout, "Log out", () {
+  Navigator.pushAndRemoveUntil(
+    context,
+    MaterialPageRoute(builder: (context) => const RoleSelectionScreen()),
+    (route) => false,  // removes all previous screens (full logout)
   );
 }),
     ],
