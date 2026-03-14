@@ -2,16 +2,18 @@
 import 'package:flutter/material.dart';
 import '../common/role_selection_screen.dart';
 
-class UserProfileScreen extends StatefulWidget {
+class UserProfileScreen extends StatefulWidget {  
   const UserProfileScreen({super.key});
 
   @override
-  State<UserProfileScreen> createState() => _UserProfileScreenState();
+  State<UserProfileScreen> createState() => _UserProfileScreenState();  
 }
 
 class _UserProfileScreenState extends State<UserProfileScreen> {
     String _userName = "Danel Fernando";
     String _userEmail = "danelfernando@gmail.com";
+
+    int _selectedIndex = 3;
 
     void _showEditProfileDialog() {
   final nameController = TextEditingController(text: _userName);
@@ -121,7 +123,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
       const SizedBox(height: 15),
 
-      // Name and email (placeholders for now)
+      // Name and email 
       Text(
   _userName,
   style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -179,7 +181,7 @@ _buildTile(Icons.logout, "Log out", () {
   Navigator.pushAndRemoveUntil(
     context,
     MaterialPageRoute(builder: (context) => const RoleSelectionScreen()),
-    (route) => false,  // removes all previous screens (full logout)
+    (route) => false, 
   );
 }),
     ],
@@ -192,7 +194,12 @@ bottomNavigationBar: BottomNavigationBar(
   unselectedItemColor: const Color.fromARGB(255, 0, 0, 0),
   showSelectedLabels: false,
   showUnselectedLabels: false,
-  currentIndex: 3, // Profile selected (index 3 = avatar)
+  currentIndex: _selectedIndex, 
+        onTap: (index) {
+          setState(() {  
+            _selectedIndex = index;
+          });
+        }, 
   items: const [
     BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: ""),
     BottomNavigationBarItem(icon: Icon(Icons.favorite_border), label: ""),
