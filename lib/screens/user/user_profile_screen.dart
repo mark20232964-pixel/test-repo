@@ -1,9 +1,16 @@
 
 import 'package:flutter/material.dart';
 
-class UserProfileScreen extends StatelessWidget {
+class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({super.key});
 
+  @override
+  State<UserProfileScreen> createState() => _UserProfileScreenState();
+}
+
+class _UserProfileScreenState extends State<UserProfileScreen> {
+    String _userName = "Danel Fernando";
+    String _userEmail = "danelfernando@gmail.com";
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,14 +72,25 @@ class UserProfileScreen extends StatelessWidget {
       const SizedBox(height: 15),
 
       // Name and email (placeholders for now)
-      const Text(
-        "Danel Fernando",
-        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      Text(
+  _userName,
+  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
       ),
-      const Text(
-        "danelfernando@gmail.com",
-        style: TextStyle(color: Colors.grey),
+      Text(
+  _userEmail,
+  style: const TextStyle(color: Colors.grey),
       ),
+      TextButton(
+  onPressed: () {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Edit profile tapped - coming in next commit')),
+    );
+  },
+  child: const Text(
+    "Edit profile",
+    style: TextStyle(color: Color(0xFF6A48FF)),
+  ),
+),
     ],
   ),
 ),
