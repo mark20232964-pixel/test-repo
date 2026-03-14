@@ -136,9 +136,53 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     style: TextStyle(color: Color(0xFF6A48FF)),
   ),
 ),
+const SizedBox(height: 30),
+
+// List tiles
+_buildTile(Icons.history, "History", () {
+  // TODO: Navigate to history screen later
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text('History tapped')),
+  );
+}),
+_buildTile(Icons.notifications_outlined, "Verify vehicle", () {
+  // TODO: Real navigation later
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text('Verify vehicle tapped')),
+  );
+}),
+_buildTile(Icons.settings_outlined, "Settings", () {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text('Settings tapped')),
+  );
+}),
+_buildTile(Icons.language, "Languages", () {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text('Languages tapped')),
+  );
+}),
+_buildTile(Icons.privacy_tip_outlined, "Privacy Policy", () {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text('Privacy Policy tapped')),
+  );
+}),
+_buildTile(Icons.help_outline, "Support Center", () {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text('Support Center tapped')),
+  );
+}),
     ],
   ),
 ),
     );
   }
+}
+
+Widget _buildTile(IconData icon, String title, VoidCallback onTap) {
+  return ListTile(
+    leading: Icon(icon, color: Colors.black),
+    title: Text(title, style: const TextStyle(color: Colors.black)),
+    trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.black),
+    onTap: onTap,
+  );
 }
