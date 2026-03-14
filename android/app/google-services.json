@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "674754463738",
+    "project_id": "roadresqsdgp",
+    "storage_bucket": "roadresqsdgp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:674754463738:android:b9a8540d8ff791b6b04643",
+        "android_client_info": {
+          "package_name": "com.example.roadresq"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB-RnUpsAcnvHyM5X51H5tPNnOQ51XhAYA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

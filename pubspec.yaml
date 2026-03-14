@@ -1,0 +1,48 @@
+name: roadresq
+description: RoadResQ - Smart Roadside Assistance App for Sri Lanka
+
+publish_to: 'none' # Remove this line if you want to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  
+
+  # For persistent storage (used in Our Services screen)
+  shared_preferences: ^2.3.0
+
+  # Optional: for Cupertino-style widgets (iOS-like look on Android too)
+  cupertino_icons: ^1.0.8
+  firebase_core: ^2.32.0
+  cloud_firestore: ^4.17.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^4.0.0 # Recommended for linting and good practices
+
+flutter:
+
+  # Enables Material Design icons
+  uses-material-design: true
+
+  # Declare your image assets here (make sure files exist in assets/images/)
+  assets:
+    - assets/images/mechanic.jpg
+    - assets/images/garage.jpg
+    - assets/images/ongoing.jpg
+    - assets/images/calendar.jpg
+    - assets/images/service.jpg
+
+  # If you add more assets later (fonts, other images, etc.), add them here
+  # fonts:
+  #   - family: SomeFont
+  #     fonts:
+  #       - asset: fonts/SomeFont-Regular.ttf
