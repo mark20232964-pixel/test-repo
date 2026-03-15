@@ -17,11 +17,18 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  
+
   late TextEditingController _nameController;
   late TextEditingController _emailController;
 
   String? _profileImageUrl; // for preview (later Firebase Storage)
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.initialName);
+    _emailController = TextEditingController(text: widget.initialEmail);
+  }
 
   @override
   Widget build(BuildContext context) {
