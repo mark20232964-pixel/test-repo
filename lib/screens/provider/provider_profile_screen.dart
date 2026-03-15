@@ -1,3 +1,12 @@
+// lib/screens/provider/profile_screen.dart
+//
+// Provider Profile Screen
+// Displays provider info, allows editing profile,
+// shows list of options, and logout to role selection.
+// Built incrementally in 10 commits for clear progress.
+// Features: dynamic name/email, edit dialog, list tiles, bottom nav with highlight.
+// Note: Firebase integration (Firestore/Storage) can be added later.
+
 import 'package:flutter/material.dart';
 import '../common/role_selection_screen.dart';
 
@@ -16,7 +25,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // Bottom nav selected index — starts with profile tab highlighted
   int _selectedIndex = 3; // 3 = profile avatar
 
-  // Edit profile dialog (from previous commit)
+  // Edit profile dialog
   void _showEditProfileDialog() {
     final nameController = TextEditingController(text: _providerName);
     final emailController = TextEditingController(text: _providerEmail);
@@ -158,7 +167,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             const SizedBox(height: 30),
 
-            // List tiles (from commit 6)
+            // List tiles
             _buildTile(Icons.history, "History", () {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('History tapped')),
@@ -190,9 +199,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               );
             }),
 
-            // Commit 7: Logout tile
-            const SizedBox(height: 20),
+            // Logout tile
+            const SizedBox(height: 40),
 
+            // TODO: Add confirmation dialog before logout (e.g. "Are you sure?")
             _buildTile(Icons.logout, "Log out", () {
               Navigator.pushAndRemoveUntil(
                 context,
@@ -204,6 +214,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ],
         ),
       ),
+
+      // Bottom navigation bar - interactive with highlight
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.white,
@@ -216,8 +228,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           setState(() {
             _selectedIndex = index;
           });
-          // Removed temporary snackbar (cleaner look)
-          // You can add it back if you want feedback
         },
         items: const [
           BottomNavigationBarItem(
