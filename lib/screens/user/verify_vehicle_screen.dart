@@ -97,22 +97,34 @@ Expanded(
       final selectedBrands = brands[selectedType] ?? [];
 
       if (selectedBrands.isEmpty) {
-        return const Center(
-          child: Text(
-            'No brands available for this type',
-            style: TextStyle(fontSize: 18, color: Colors.grey),
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.info_outline, size: 60, color: Colors.grey),
+              SizedBox(height: 16),
+              Text(
+                'No brands found for ${selectedType}',
+                style: TextStyle(fontSize: 18, color: Colors.grey),
+              ),
+              SizedBox(height: 8),
+              Text(
+                'Please try another vehicle type',
+                style: TextStyle(fontSize: 14, color: Colors.grey),
+              ),
+            ],
           ),
         );
       }
 
       return ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         itemCount: selectedBrands.length,
         itemBuilder: (context, index) {
           final brand = selectedBrands[index];
           return Card(
-            color: Colors.white,
             elevation: 2,
+            color: Colors.white,
             margin: const EdgeInsets.only(bottom: 12),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             child: ListTile(
@@ -151,16 +163,15 @@ Expanded(
               ),
               trailing: const Icon(Icons.chevron_right, color: Colors.grey),
               onTap: () {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text(
-        'Selected ${brand['name']} for $selectedType - Details coming soon',
-      ),
-      duration: const Duration(seconds: 3),
-    ),
-  );
-  // TODO: Later: Navigator.push to brand details screen
-},
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Selected ${brand['name']} for $selectedType - Details coming soon',
+                    ),
+                    duration: const Duration(seconds: 3),
+                  ),
+                );
+              },
             ),
           );
         },
