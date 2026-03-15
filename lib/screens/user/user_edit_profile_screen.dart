@@ -107,6 +107,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
+  void _pickImage() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Image upload coming soon')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
