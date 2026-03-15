@@ -225,3 +225,38 @@ Widget _buildBubble(ChatMessage msg) {
     ),
   );
 }
+
+Widget _buildInputBar() {
+  return Container(
+    color: const Color(0xFF1C1C1C),
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+    child: SafeArea(
+      top: false,
+      child: Row(
+        children: [
+          IconButton(icon: const Icon(Icons.attach_file, color: Colors.white54, size: 22), onPressed: () {}),
+          Expanded(
+            child: TextField(
+              controller: _controller,
+              style: const TextStyle(color: Colors.white, fontSize: 14),
+              decoration: InputDecoration(
+                hintText: 'Write Here...',
+                hintStyle: const TextStyle(color: Colors.white38, fontSize: 14),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(24),
+                  borderSide: BorderSide.none,
+                ),
+                filled: true,
+                fillColor: const Color(0xFF2E2E2E),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              ),
+              onSubmitted: (_) => _sendMessage(),
+            ),
+          ),
+          IconButton(icon: const Icon(Icons.mic, color: Colors.white54, size: 22), onPressed: () {}),
+          IconButton(icon: const Icon(Icons.send, color: Colors.white70, size: 22), onPressed: _sendMessage),
+        ],
+      ),
+    ),
+  );
+}
