@@ -92,6 +92,33 @@ class _AddChargesScreenState extends State<AddChargesScreen> {
                   });
                 },
               ),  
+
+              const SizedBox(height: 24),
+
+              // Price Field
+              const Text(
+                'Price (LKR)',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _priceController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  hintText: 'Insert Price',
+                  filled: true,
+                  fillColor: const Color(0xFFF5F5F5),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              ),
+            ),
+
+            const SizedBox(height: 48),
+            
             ],
           ),
         ),
