@@ -130,3 +130,21 @@ Widget _buildInputBar() {
     ),
   );
 }
+
+Widget _buildBottomNav() {
+  return BottomNavigationBar(
+    type: BottomNavigationBarType.fixed,
+    items: const [
+      BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: ''),
+      BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline), label: ''),
+      BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: ''),
+      BottomNavigationBarItem(
+        icon: CircleAvatar(
+          radius: 12,
+          backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=12'),
+        ),
+        label: '',
+      ),
+    ],
+  );
+}
