@@ -80,6 +80,33 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
+  void _saveProfile() {
+    final newName = _nameController.text.trim();
+    final newEmail = _emailController.text.trim();
+    final newPhone = _phoneController.text.trim();
+    final newDob = _selectedDob;
+
+    if (newName.isEmpty || newEmail.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Name and email cannot be empty')),
+      );
+      return;
+    }
+
+    // Optional: add phone validation later (e.g. length 10 for LK)
+
+    Navigator.pop(context, {
+      'name': newName,
+      'email': newEmail,
+      'phone': newPhone.isNotEmpty ? newPhone : null,
+      'dob': newDob,
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Profile updated successfully!')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
