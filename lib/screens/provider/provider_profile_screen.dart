@@ -1,13 +1,17 @@
 // lib/screens/provider/profile_screen.dart
 //
-// Provider Profile Screen
-// Displays provider info, allows editing profile,
-// shows list of options, and logout to role selection.
-// Built incrementally in 10 commits for clear progress.
-// Features: dynamic name/email, edit dialog, list tiles, bottom nav with highlight.
-// Note: Firebase integration (Firestore/Storage) can be added later.
+// Provider Profile Screen with Firebase integration
+// Loads data from Firestore 'providers/test-provider-1'
+// Supports profile photo upload (Storage), verification docs upload
+// Edit name/email dialog, list options, logout to role selection
+// Built in 10 incremental commits
 
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:path/path.dart' as path;
 import '../common/role_selection_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -18,17 +22,109 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  // Editable provider data
-  String _providerName = "Provider Name";
-  String _providerEmail = "provider@example.com";
+  // Firebase data
+  String? profileImageUrl;
+  List<String> verificationDocs = [];
+  String? _providerName;
+  String? _providerEmail;
+  bool _isLoading = true;
 
-  // Bottom nav selected index — starts with profile tab highlighted
-  int _selectedIndex = 3; // 3 = profile avatar
+  // Bottom nav selected index
+  int _selectedIndex = 3; // profile tab
 
-  // Edit profile dialog
+  @override
+  void initState() {
+    super.initState();
+    _loadProfileData();
+  }
+
+  // Load data from Firestore
+  Future<void> _loadProfileData() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('providers')
+          .doc('test-provider-1')
+          .get();
+
+      if (doc.exists) {
+        setState(() {
+          _providerName = doc['name'] ?? "Name not set";
+          _providerEmail = doc['email'] ?? "Email not set";
+          profileImageUrl = doc['profileImageUrl'];
+          verificationDocs = List<String>.from(doc['verificationDocs'] ?? []);
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _providerName = "No profile data found";
+          _providerEmail = "Add data in Firestore";
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Firestore load error: $e');
+      setState(() {
+        _providerName = "Error loading data";
+        _providerEmail = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+  // Upload Profile Picture
+  Future<void> _uploadProfilePicture() async {
+    final picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+    if (image == null) return;
+
+    final fileName = path.basename(image.path);
+    final ref = FirebaseStorage.instance.ref().child(
+          'provider_profiles/test-provider-1/$fileName',
+        );
+
+    await ref.putFile(File(image.path));
+    final downloadUrl = await ref.getDownloadURL();
+
+    await FirebaseFirestore.instance
+        .collection('providers')
+        .doc('test-provider-1')
+        .set({'profileImageUrl': downloadUrl}, SetOptions(merge: true));
+
+    setState(() => profileImageUrl = downloadUrl);
+  }
+
+  // Upload Verification Document
+  Future<void> _uploadVerificationDoc() async {
+    final picker = ImagePicker();
+    final XFile? file = await picker.pickImage(source: ImageSource.gallery);
+
+    if (file == null) return;
+
+    final fileName = path.basename(file.path);
+    final ref = FirebaseStorage.instance.ref().child(
+          'provider_docs/test-provider-1/$fileName',
+        );
+
+    await ref.putFile(File(file.path));
+    final downloadUrl = await ref.getDownloadURL();
+
+    verificationDocs.add(downloadUrl);
+
+    await FirebaseFirestore.instance
+        .collection('providers')
+        .doc('test-provider-1')
+        .update({'verificationDocs': verificationDocs});
+
+    setState(() {});
+  }
+
+  // Edit Profile Dialog (ADDED NOW)
   void _showEditProfileDialog() {
-    final nameController = TextEditingController(text: _providerName);
-    final emailController = TextEditingController(text: _providerEmail);
+    final nameController = TextEditingController(text: _providerName ?? '');
+    final emailController = TextEditingController(text: _providerEmail ?? '');
 
     showDialog(
       context: context,
@@ -75,6 +171,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  // Logout
+  void _logout() {
+    // TODO: Uncomment when Firebase Auth is added
+    // await FirebaseAuth.instance.signOut();
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const RoleSelectionScreen()),
+      (route) => false,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -96,126 +203,87 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            const SizedBox(height: 40),
-
-            // Profile photo + camera overlay
-            Center(
-              child: Stack(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              child: Column(
                 children: [
-                  const CircleAvatar(
-                    radius: 60,
-                    backgroundImage:
-                        NetworkImage('https://via.placeholder.com/150'),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: GestureDetector(
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text('Change photo coming soon')),
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black26,
-                              blurRadius: 4,
-                              offset: Offset(0, 2),
+                  const SizedBox(height: 40),
+
+                  // Profile photo + camera overlay (upload on tap)
+                  Center(
+                    child: Stack(
+                      children: [
+                        CircleAvatar(
+                          radius: 60,
+                          backgroundImage: profileImageUrl != null
+                              ? NetworkImage(profileImageUrl!)
+                              : const NetworkImage(
+                                  'https://via.placeholder.com/150'),
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: GestureDetector(
+                            onTap: _uploadProfilePicture,
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: const BoxDecoration(
+                                color: Color(0xFF6A48FF),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.camera_alt,
+                                color: Colors.white,
+                                size: 20,
+                              ),
                             ),
-                          ],
+                          ),
                         ),
-                        child: const Icon(
-                          Icons.camera_alt,
-                          size: 20,
-                          color: Colors.grey,
-                        ),
-                      ),
+                      ],
                     ),
                   ),
+
+                  const SizedBox(height: 16),
+
+                  Text(
+                    _providerName ?? "Name not set",
+                    style: const TextStyle(
+                        fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    _providerEmail ?? "Email not set",
+                    style: const TextStyle(fontSize: 16, color: Colors.grey),
+                  ),
+
+                  TextButton(
+                    onPressed:
+                        _showEditProfileDialog, // ← now calls the real function
+                    child: const Text(
+                      "Edit profile",
+                      style: TextStyle(color: Color(0xFF6A48FF)),
+                    ),
+                  ),
+
+                  const SizedBox(height: 30),
+
+                  // List tiles
+                  _buildTile(Icons.history, "History", () {}),
+                  _buildTile(Icons.notifications_outlined, "Verify doc",
+                      _uploadVerificationDoc),
+                  _buildTile(Icons.settings_outlined, "Settings", () {}),
+                  _buildTile(Icons.language, "Languages", () {}),
+                  _buildTile(
+                      Icons.privacy_tip_outlined, "Privacy Policy", () {}),
+                  _buildTile(Icons.help_outline, "Support Center", () {}),
+
+                  const SizedBox(height: 40),
+
+                  _buildTile(Icons.logout, "Log out", _logout),
                 ],
               ),
             ),
-
-            const SizedBox(height: 16),
-
-            Text(
-              _providerName,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              _providerEmail,
-              style: const TextStyle(fontSize: 16, color: Colors.grey),
-            ),
-
-            TextButton(
-              onPressed: _showEditProfileDialog,
-              child: const Text(
-                "Edit profile",
-                style: TextStyle(color: Color(0xFF6A48FF)),
-              ),
-            ),
-
-            const SizedBox(height: 30),
-
-            // List tiles
-            _buildTile(Icons.history, "History", () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('History tapped')),
-              );
-            }),
-            _buildTile(Icons.notifications_outlined, "Verify doc", () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Verify doc tapped')),
-              );
-            }),
-            _buildTile(Icons.settings_outlined, "Settings", () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Settings tapped')),
-              );
-            }),
-            _buildTile(Icons.language, "Languages", () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Languages tapped')),
-              );
-            }),
-            _buildTile(Icons.privacy_tip_outlined, "Privacy Policy", () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Privacy Policy tapped')),
-              );
-            }),
-            _buildTile(Icons.help_outline, "Support Center", () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Support Center tapped')),
-              );
-            }),
-
-            // Logout tile
-            const SizedBox(height: 40),
-
-            // TODO: Add confirmation dialog before logout (e.g. "Are you sure?")
-            _buildTile(Icons.logout, "Log out", () {
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const RoleSelectionScreen()),
-                (route) => false,
-              );
-            }),
-          ],
-        ),
-      ),
-
-      // Bottom navigation bar - interactive with highlight
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.white,
@@ -230,18 +298,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
           });
         },
         items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: ''),
           BottomNavigationBarItem(
-            icon: Icon(Icons.home_filled),
-            label: '',
-          ),
+              icon: Icon(Icons.add_circle_outline), label: ''),
           BottomNavigationBarItem(
-            icon: Icon(Icons.add_circle_outline),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chat_bubble_outline),
-            label: '',
-          ),
+              icon: Icon(Icons.chat_bubble_outline), label: ''),
           BottomNavigationBarItem(
             icon: CircleAvatar(
               radius: 16,
@@ -255,7 +316,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildTile(IconData icon, String title, VoidCallback onTap) {
+  Widget _buildTile(IconData icon, String title, [VoidCallback? onTap]) {
     return ListTile(
       leading: Icon(icon, color: Colors.black),
       title: Text(title, style: const TextStyle(color: Colors.black)),
