@@ -17,7 +17,7 @@ class _AddGarageScreenState extends State<AddGarageScreen> {
   final _contactController = TextEditingController();
   final _emailController = TextEditingController();
   final _descriptionController = TextEditingController();
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,7 +32,23 @@ class _AddGarageScreenState extends State<AddGarageScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children:[]
+          children:[
+            //Garage Name
+            const Text('Garage Name', style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _nameController,
+              decoration: InputDecoration(
+                hintText: 'e.g. ABC Motors',
+                filled: true,
+                fillColor: const Color(0xFFF5F5F5),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+          ]
       )
     );
   }
