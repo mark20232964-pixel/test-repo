@@ -9,6 +9,7 @@ class VerifyVehicleScreen extends StatefulWidget {
 
 class _VerifyVehicleScreenState extends State<VerifyVehicleScreen> {
   String selectedType = 'Car';
+  int _selectedIndex = 3; // start with profile tab highlighted
 
     final Map<String, List<Map<String, String>>> brands = {
     'Car': [
@@ -154,7 +155,12 @@ bottomNavigationBar: BottomNavigationBar(
   unselectedItemColor: const Color.fromARGB(255, 0, 0, 0),
   showSelectedLabels: false,
   showUnselectedLabels: false,
-  currentIndex: 3, // Profile selected (index 3 = avatar)
+  currentIndex: _selectedIndex,
+onTap: (index) {
+  setState(() {
+    _selectedIndex = index;
+  });
+}, // Profile selected (index 3 = avatar)
   items: const [
     BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: ""),
     BottomNavigationBarItem(icon: Icon(Icons.favorite_border), label: ""),
