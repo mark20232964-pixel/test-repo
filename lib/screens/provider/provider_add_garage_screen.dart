@@ -12,7 +12,14 @@ class AddGarageScreen extends StatefulWidget {
 class _AddGarageScreenState extends State<AddGarageScreen> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text('Add a Garage'),
+        backgroundColor: const Color(0xFF1B1B4B),
+        foregroundColor: Colors.white,
+        elevation: 0,
+      ),
       body: Center(child: Text('Add Garage Screen - coming soon')),
     );
   }
