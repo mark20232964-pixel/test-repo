@@ -8,10 +8,11 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  // These variables are now visible inside the state class
+  // Editable provider data
   String _providerName = "Provider Name";
   String _providerEmail = "provider@example.com";
 
+  // Edit profile dialog (from previous commit)
   void _showEditProfileDialog() {
     final nameController = TextEditingController(text: _providerName);
     final emailController = TextEditingController(text: _providerEmail);
@@ -66,14 +67,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-          // your AppBar code from commit 2...
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          "Profile",
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
           ),
+        ),
+        centerTitle: true,
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
             const SizedBox(height: 40),
 
-            // Profile photo (from commit 3)
+            // Profile photo + camera overlay
             Center(
               child: Stack(
                 children: [
@@ -119,7 +134,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             const SizedBox(height: 16),
 
-            // Name and email — now using variables (no more red error)
             Text(
               _providerName,
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
@@ -130,7 +144,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               style: const TextStyle(fontSize: 16, color: Colors.grey),
             ),
 
-            // "Edit profile" button (add this if not there yet)
             TextButton(
               onPressed: _showEditProfileDialog,
               child: const Text(
@@ -138,9 +151,52 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 style: TextStyle(color: Color(0xFF6A48FF)),
               ),
             ),
+
+            const SizedBox(height: 30),
+
+            _buildTile(Icons.history, "History", () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('History tapped')),
+              );
+            }),
+            _buildTile(Icons.notifications_outlined, "Verify doc", () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Verify doc tapped')),
+              );
+            }),
+            _buildTile(Icons.settings_outlined, "Settings", () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Settings tapped')),
+              );
+            }),
+            _buildTile(Icons.language, "Languages", () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Languages tapped')),
+              );
+            }),
+            _buildTile(Icons.privacy_tip_outlined, "Privacy Policy", () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Privacy Policy tapped')),
+              );
+            }),
+            _buildTile(Icons.help_outline, "Support Center", () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Support Center tapped')),
+              );
+            }),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildTile(IconData icon, String title, VoidCallback onTap) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.black),
+      title: Text(title, style: const TextStyle(color: Colors.black)),
+      trailing:
+          const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.black),
+      onTap: onTap,
     );
   }
 }
