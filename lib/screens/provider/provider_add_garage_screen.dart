@@ -103,6 +103,24 @@ class _AddGarageScreenState extends State<AddGarageScreen> {
             ),
             const SizedBox(height: 20),
 
+            // Description
+            const Text('Description', style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _descriptionController,
+              maxLines: 3,
+              decoration: InputDecoration(
+                hintText: 'e.g. Full-service auto repair shop',
+                filled: true,
+                fillColor: const Color(0xFFF5F5F5),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+
           ]
       )
     );
