@@ -170,3 +170,29 @@ Widget build(BuildContext context) {
     bottomNavigationBar: _buildBottomNav(),
   );
 }
+Widget _buildHeader(String name) {
+  return Container(
+    padding: const EdgeInsets.only(top: 60, left: 20, right: 20, bottom: 20),
+    decoration: const BoxDecoration(
+      color: Color(0xFF1B1B4B),
+      borderRadius: BorderRadius.only(
+        bottomLeft: Radius.circular(20),
+        bottomRight: Radius.circular(20),
+      ),
+    ),
+    child: Row(
+      children: [
+        const BackButton(color: Colors.white),
+        const CircleAvatar(
+          radius: 18,
+          backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=12'),
+        ),
+        const SizedBox(width: 10),
+        Text(
+          name,
+          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+      ],
+    ),
+  );
+}
