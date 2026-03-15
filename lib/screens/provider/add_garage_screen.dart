@@ -92,6 +92,24 @@ class _AddGarageScreenState extends State<AddGarageScreen> {
                 ),
               ),
             ),
+            const SizedBox(height: 20),
+
+            // Email Address
+            const Text('Email Address', style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _emailController,
+              keyboardType: TextInputType.emailAddress,
+              decoration: InputDecoration(
+                hintText: 'e.g. abc@gmail.com',
+                filled: true,
+                fillColor: const Color(0xFFF5F5F5),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
 
 
           ],
