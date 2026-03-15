@@ -10,6 +10,14 @@ class AddGarageScreen extends StatefulWidget {
 }
 
 class _AddGarageScreenState extends State<AddGarageScreen> {
+
+  // Text Controllers for form fields
+  final _nameController = TextEditingController();
+  final _addressController = TextEditingController();
+  final _contactController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _descriptionController = TextEditingController();
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
