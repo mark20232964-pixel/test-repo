@@ -89,3 +89,23 @@ Widget _buildHeader(String name) {
     ),
   );
 }
+
+Widget _buildBubble(ChatMessage msg) {
+  final isSent = msg.isSent;
+  return Align(
+    alignment: isSent ? Alignment.centerRight : Alignment.centerLeft,
+    child: Container(
+      margin: const EdgeInsets.symmetric(vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
+      decoration: BoxDecoration(
+        color: isSent ? Colors.grey[600] : Colors.grey[200],
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Text(
+        msg.text,
+        style: TextStyle(color: isSent ? Colors.white : Colors.black87, fontSize: 14),
+      ),
+    ),
+  );
+}
