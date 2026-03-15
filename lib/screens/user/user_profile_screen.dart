@@ -5,6 +5,7 @@
 
 import 'package:flutter/material.dart';
 import '../common/role_selection_screen.dart';
+import 'verify_vehicle_screen.dart';
 
 class UserProfileScreen extends StatefulWidget {  
   const UserProfileScreen({super.key});
@@ -153,9 +154,9 @@ _buildTile(Icons.history, "History", () {
   );
 }),
 _buildTile(Icons.notifications_outlined, "Verify vehicle", () {
-  // TODO: Real navigation later
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(content: Text('Verify vehicle tapped')),
+  Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => const VerifyVehicleScreen()),
   );
 }),
 _buildTile(Icons.settings_outlined, "Settings", () {
