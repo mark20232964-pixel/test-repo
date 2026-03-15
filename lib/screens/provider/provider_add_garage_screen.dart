@@ -39,6 +39,59 @@ class _AddGarageScreenState extends State<AddGarageScreen> {
     super.dispose();
   }
 
+  void _submitGarage() {
+    // Fake submission (you can later connect to Firebase here)
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFFE6F4E6), // light green as in Figma
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CircleAvatar(
+              radius: 40,
+              backgroundColor: Colors.green,
+              child: Icon(Icons.check, color: Colors.white, size: 50),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Success!',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+            const Text(
+              'Garage Added. Thank You!',
+              style: TextStyle(fontSize: 16, color: Colors.black54),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context); // close success dialog
+                  Navigator.pop(context); // go back to Provider Dashboard
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text('OK', style: TextStyle(fontSize: 18)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
