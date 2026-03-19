@@ -90,8 +90,23 @@ class _AddGarageScreenState extends State<AddGarageScreen> {
                   decoration: const InputDecoration(labelText: 'Description'),
                   maxLines: 2,
                 ),
+                const SizedBox(height: 16),
 
-
+                // Service Categories
+                Column(
+                  children: _serviceCategories.keys.map((service) {
+                    return CheckboxListTile(
+                      title: Text(service),
+                      value: _serviceCategories[service],
+                      onChanged: (val) {
+                        setState(() {
+                          _serviceCategories[service] = val!;
+                        });
+                      },
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 24),
               ],
             ),
           ),
