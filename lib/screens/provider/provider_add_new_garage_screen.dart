@@ -77,6 +77,35 @@ class _AddGarageScreenState extends State<AddGarageScreen> {
               backgroundColor: Colors.green,
               child: Icon(Icons.check, color: Colors.white, size: 50),
             ),
+            const SizedBox(height: 16),
+            const Text(
+              'Success!',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87),
+            ),
+            const Text(
+              'Garage Added. Thank You!',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context); // dialog
+                  Navigator.pop(context); // screen
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black87,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: const Text('OK', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
