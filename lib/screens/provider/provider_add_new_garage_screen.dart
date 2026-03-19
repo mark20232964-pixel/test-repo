@@ -190,12 +190,17 @@ class _AddGarageScreenState extends State<AddGarageScreen> {
                 const SizedBox(height: 16),
 
                 // Description
+                const Text('Description', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87, fontSize: 18)),
+                const SizedBox(height: 6),
                 TextFormField(
                   controller: _descriptionController,
-                  decoration: const InputDecoration(labelText: 'Description'),
+                  cursorColor: const Color(0xFF6A48FF),
+                  style: const TextStyle(color: Colors.black87, fontSize: 16),
+                  minLines: 2,
                   maxLines: 2,
+                  decoration: _inputDecoration('e.g. Full-service auto repair shop'),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
 
                 // Service Categories
                 Column(
