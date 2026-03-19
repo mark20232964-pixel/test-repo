@@ -142,10 +142,14 @@ class _AddGarageScreenState extends State<AddGarageScreen> {
                 const SizedBox(height: 16),
 
                 // Address
+                const Text('Address', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87, fontSize: 18)),
+                const SizedBox(height: 8),
                 TextFormField(
                   controller: _addressController,
-                  decoration: const InputDecoration(labelText: 'Address'),
-                  validator: (v) => v!.isEmpty ? 'Required' : null,
+                  cursorColor: const Color(0xFF6A48FF),
+                  style: const TextStyle(color: Colors.black87, fontSize: 16),
+                  validator: (v) => v?.trim().isEmpty ?? true ? 'Required' : null,
+                  decoration: _inputDecoration('e.g. 123, Main St, Colombo'),
                 ),
                 const SizedBox(height: 16),
 
