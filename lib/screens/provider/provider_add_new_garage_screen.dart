@@ -236,11 +236,36 @@ class _AddGarageScreenState extends State<AddGarageScreen> {
                 ),
 
                 const SizedBox(height: 24),
+
                 // Submit Button
-                ElevatedButton(
-                  onPressed: _submitGarage,
-                  child: const Text('Submit'),
+                SizedBox(
+                  width: double.infinity,
+                  height: 54,
+                  child: ElevatedButton(
+                    onPressed: _isLoading ? null : _submitGarage,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF6A48FF),
+                      foregroundColor: Colors.white,
+                      disabledBackgroundColor: Colors.grey.shade400,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 2,
+                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          )
+                        : const Text(
+                            'SUBMIT',
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                  ),
                 ),
+
+                const SizedBox(height: 24),
               ],
             ),
           ),
