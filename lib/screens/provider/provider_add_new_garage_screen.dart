@@ -39,7 +39,18 @@ class _AddGarageScreenState extends State<AddGarageScreen> {
           child: Form(
             key: _formKey,
             child: Column(
-              children: const [],
+              children: [
+                // Garage Name
+                TextFormField(
+                  controller: _nameController,
+                  decoration: const InputDecoration(labelText: 'Garage Name'),
+                  validator: (v) => v!.isEmpty ? 'Required' : null,
+                ),
+
+                const SizedBox(height: 16),
+                
+
+              ],
             ),
           ),
         ),
