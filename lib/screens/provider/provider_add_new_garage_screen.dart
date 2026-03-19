@@ -74,6 +74,13 @@ class _AddGarageScreenState extends State<AddGarageScreen> {
                 ),
                 const SizedBox(height: 16),
 
+                // Description
+                TextFormField(
+                  controller: _descriptionController,
+                  decoration: const InputDecoration(labelText: 'Description'),
+                  maxLines: 2,
+                ),
+
 
               ],
             ),
