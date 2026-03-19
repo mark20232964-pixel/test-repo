@@ -17,6 +17,8 @@ class _AddGarageScreenState extends State<AddGarageScreen> {
   final _emailController = TextEditingController();
   final _descriptionController = TextEditingController();
 
+  bool _isLoading = false;
+
   final Map<String, bool> _serviceCategories = {
     'Towing': true,
     'Battery Replacement': false,
