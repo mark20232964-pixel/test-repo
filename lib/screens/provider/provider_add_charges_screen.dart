@@ -61,6 +61,33 @@ class _AddChargesScreenState extends State<AddChargesScreen> {
     super.dispose();
   }
 
+  Future<void> _submitCharges() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final priceText = _priceController.text.trim();
+    final price = double.tryParse(priceText);
+    if (price == null || price <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Enter a valid positive price')),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+    FocusScope.of(context).unfocus();
+
+    // TODO: Save to Firebase / backend here
+    await Future.delayed(const Duration(seconds: 1)); // fake delay
+
+    setState(() => _isLoading = false);
+
+    if (!mounted) return;
+
+    final displayService = _selectedService == 'Other'
+        ? _customServiceController.text.trim()
+        : _selectedService;
+
+
 
   @override
   Widget build(BuildContext context) {
