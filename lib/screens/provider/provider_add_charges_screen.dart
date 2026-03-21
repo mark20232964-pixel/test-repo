@@ -166,6 +166,39 @@ class _AddChargesScreenState extends State<AddChargesScreen> {
 
                 const SizedBox(height: 24),
 
+                // Price
+                const Text(
+                  'Price (LKR)',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87),
+                ),
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: _priceController,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+                  ],
+                  style: const TextStyle(color: Colors.black87),
+                  decoration: InputDecoration(
+                    hintText: 'Insert Price',
+                    hintStyle: const TextStyle(color: Colors.black54),
+                    filled: true,
+                    fillColor: const Color(0xFFF5F5F5),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) return 'Enter price';
+                    final num = double.tryParse(value.trim());
+                    if (num == null || num <= 0) return 'Enter valid positive amount';
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 48),
+
               ],
             ),
           ),
