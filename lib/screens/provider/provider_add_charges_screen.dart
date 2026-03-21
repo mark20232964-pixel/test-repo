@@ -93,6 +93,46 @@ class _AddChargesScreenState extends State<AddChargesScreen> {
                   maxLines: 1,
                 ),
                 const SizedBox(height: 32),
+
+                // Provided Service
+                const Text(
+                  'Provided Service',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87),
+                ),
+                const SizedBox(height: 8),
+                DropdownButtonFormField<String>(
+                  value: _selectedService,
+                  isExpanded: true,
+                  hint: const Text('Choose Service', style: TextStyle(color: Colors.black54)),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: const Color(0xFFF5F5F5),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  ),
+                  items: const [
+                    DropdownMenuItem(value: 'Tire Change', child: Text('Tire Change')),
+                    DropdownMenuItem(value: 'Battery Replacement', child: Text('Battery Replacement')),
+                    DropdownMenuItem(value: 'Headlight Change', child: Text('Headlight Change')),
+                    DropdownMenuItem(value: 'Towing', child: Text('Towing')),
+                    DropdownMenuItem(value: 'Fuel Delivery', child: Text('Fuel Delivery')),
+                    DropdownMenuItem(value: 'Jump Start', child: Text('Jump Start')),
+                    DropdownMenuItem(value: 'Emergency Repair', child: Text('Emergency Repair')),
+                    DropdownMenuItem(value: 'Other', child: Text('Other')),
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedService = value;
+                      // Optional: clear custom field when switching away from Other
+                      if (value != 'Other') _customServiceController.clear();
+                    });
+                  },
+                  validator: (value) => value == null ? 'Please select a service' : null,
+                ),
+                
               ],
             ),
           ),
