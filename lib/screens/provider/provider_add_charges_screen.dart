@@ -27,6 +27,35 @@ class _AddChargesScreenState extends State<AddChargesScreen> {
   bool _isLoading = false;
 
   @override
+  void initState() {
+    super.initState();
+    // Safe pre-fill: only set if it matches one of the allowed values
+    const validServices = {
+      'Tire Change',
+      'Battery Replacement',
+      'Headlight Change',
+      'Towing',
+      'Fuel Delivery',
+      'Jump Start',
+      'Emergency Repair',
+      'Other',
+    };
+
+    final trimmed = widget.serviceName.trim();
+    _selectedService = validServices.contains(trimmed) ? trimmed : null;
+
+    // Warn if pre-filled value didn't match
+    if (_selectedService == null && trimmed.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Service "$trimmed" not found – please select manually')),
+        );
+      });
+    }
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Add Charges')),
