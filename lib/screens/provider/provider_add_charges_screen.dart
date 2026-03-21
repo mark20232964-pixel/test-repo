@@ -65,8 +65,26 @@ class _AddChargesScreenState extends State<AddChargesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Add Charges')),
-      body: const Center(child: Text('UI Coming Soon')),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text('Add Charges'),
+        backgroundColor: const Color(0xFF1B1B4B),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(widget.customerName),
+                Text('Mechanic: ${widget.mechanicName}'),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
