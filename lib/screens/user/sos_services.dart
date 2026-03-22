@@ -80,6 +80,24 @@ class _SosScreenState extends State<SosScreen> {
     }
   }
 
+  Future<String?> _logSosAlert(double lat, double lng) async {
+    final user = FirebaseAuth.instance.currentUser;
+    try {
+      final docRef = await FirebaseFirestore.instance.collection('sos_alerts').add({
+        'userId': user?.uid ?? 'anonymous',
+        'timestamp': FieldValue.serverTimestamp(),
+        'location': GeoPoint(lat, lng),
+        'accuracy': _currentPosition?.accuracy ?? 0.0,
+        'status': 'active',
+      });
+      print("SOS logged → ID: ${docRef.id}");
+      return docRef.id;
+    } catch (e) {
+      print("Error logging SOS: $e");
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
