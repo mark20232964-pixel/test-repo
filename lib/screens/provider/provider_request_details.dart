@@ -11,6 +11,9 @@ class ProviderRequestDetailsScreen extends StatelessWidget {
   final String requestId;
   final Map<String, dynamic> data;
 
+  final String requestId;
+  final Map<String, dynamic> data;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
