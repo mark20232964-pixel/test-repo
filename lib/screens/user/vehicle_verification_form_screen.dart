@@ -22,6 +22,8 @@ class _VehicleVerificationFormScreenState extends State<VehicleVerificationFormS
   final _plateController = TextEditingController(text: "KS 5241");
   final _colorController = TextEditingController(text: "Red");
 
+  bool _isLoading = false;
+
   @override
   void dispose() {
     _modelController.dispose();
@@ -84,7 +86,7 @@ class _VehicleVerificationFormScreenState extends State<VehicleVerificationFormS
       });
     }
   }
-  bool _isLoading = false;
+
 
   @override
   Widget build(BuildContext context) {
@@ -163,15 +165,19 @@ const SizedBox(height: 20),
   }
 }
 Widget _buildField(String label, TextEditingController controller, String hint) {
+    // CHANGED: isEmpty now checks both empty field AND submit was attempted
+    // This prevents red borders from showing before user taps Verify
+    final isEmpty = controller.text.trim().isEmpty && _isLoading;
+
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       Text(
         label,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w600,
-          color: Colors.black87,
+          color: isEmpty ? Colors.red : Colors.black87,
         ),
       ),
       const SizedBox(height: 8),
@@ -180,9 +186,20 @@ Widget _buildField(String label, TextEditingController controller, String hint) 
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: const TextStyle(color: Colors.grey),
-          border: const UnderlineInputBorder(),
+          border: UnderlineInputBorder(
+            borderSide: BorderSide(color: isEmpty ? Colors.red : Colors.grey),
+          ),
+          errorText: isEmpty ? 'This field is required' : null,
+          errorStyle: const TextStyle(color: Colors.red),
         ),
+        onChanged: (value) {
+            if (value.trim().isNotEmpty) {
+              setState(() {}); // Rebuild to remove red/error text
+            }
+
+        }
       ),
+      const SizedBox(height: 16),
     ],
   );
 }
