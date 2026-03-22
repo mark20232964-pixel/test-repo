@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'our_services_screen.dart';
-import 'add_garage_screen.dart';
+import 'provider_add_new_garage_screen.dart';
 
 class ProviderDashboard extends StatefulWidget {
   const ProviderDashboard({super.key});
