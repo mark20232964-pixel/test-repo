@@ -1,6 +1,7 @@
 // lib/screens/provider/add_mechanic.dart
 
-import 'package:flutter/material.dart';
+import 'dart:convert'; // for JSON parsing in search
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // for current user
 import 'package:cloud_firestore/cloud_firestore.dart'; // for saving mechanic data
@@ -19,6 +20,8 @@ class _AddMechanicScreenState extends State<AddMechanicScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
+
+  LatLng? _selectedLocation;
 
   @override
   Widget build(BuildContext context) {
@@ -56,6 +59,7 @@ class _AddMechanicScreenState extends State<AddMechanicScreen> {
               ),
               const SizedBox(height: 24),
 
+              // Location selection tile
               ListTile(
                 title: const Text('Select Mechanic Location'),
                 subtitle: Text(
@@ -80,7 +84,7 @@ class _AddMechanicScreenState extends State<AddMechanicScreen> {
 
               const Spacer(),
 
-              // NEW: Submit button + validation
+              // Submit button
               SizedBox(
                 width: double.infinity,
                 height: 54,
@@ -95,7 +99,6 @@ class _AddMechanicScreenState extends State<AddMechanicScreen> {
                       return;
                     }
 
-                    // Placeholder for future submit logic
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                           content: Text(
@@ -123,7 +126,9 @@ class _AddMechanicScreenState extends State<AddMechanicScreen> {
       ),
     );
   }
-  // Inner class for map picker screen
+}
+
+// Inner class for map picker screen (added in commit 7)
 class MapPickerScreen extends StatefulWidget {
   const MapPickerScreen({super.key});
 
@@ -132,11 +137,27 @@ class MapPickerScreen extends StatefulWidget {
 }
 
 class _MapPickerScreenState extends State<MapPickerScreen> {
+  GoogleMapController? _mapController;
+
+  // Default initial position: Colombo city center
+  LatLng _currentPosition = const LatLng(6.9271, 79.8612);
+
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: Text('Map Picker Screen - Coming in next commits')),
+    return Scaffold(
+      body: GoogleMap(
+        initialCameraPosition: CameraPosition(
+          target: _currentPosition,
+          zoom: 14.0,
+        ),
+        onMapCreated: (GoogleMapController controller) {
+          _mapController = controller;
+        },
+        myLocationEnabled: true,
+        myLocationButtonEnabled: true,
+        zoomControlsEnabled: true,
+        mapType: MapType.normal,
+      ),
     );
   }
-}
 }
