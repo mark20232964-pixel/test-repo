@@ -44,7 +44,7 @@ class _AddServiceTypeScreenState extends State<AddServiceTypeScreen> {
             ),
             const SizedBox(height: 32),
 
-            // Mechanic card (first one from screenshot)
+            // Mechanic card (already there from commit 5)
             Card(
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16)),
@@ -70,7 +70,31 @@ class _AddServiceTypeScreenState extends State<AddServiceTypeScreen> {
 
             const SizedBox(height: 16),
 
-            const Spacer(), // keep for now - we'll add more cards soon
+            // Garage card - NEW in this commit
+            Card(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
+              elevation: 4,
+              child: ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: const Color(0xFF6A48FF).withOpacity(0.2),
+                  child: const Icon(Icons.garage, color: Color(0xFF6A48FF)),
+                ),
+                title: const Text('Garage / Workshop'),
+                subtitle: const Text('Coming soon'),
+                trailing: const Icon(Icons.arrow_forward_ios),
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Garage / Workshop - Coming soon')),
+                  );
+                },
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            const Spacer(), // still temporary
           ],
         ),
       ),
