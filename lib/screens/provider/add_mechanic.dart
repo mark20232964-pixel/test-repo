@@ -1,13 +1,12 @@
 // lib/screens/provider/add_mechanic.dart
 
-import 'dart:convert'; // for JSON parsing in search
-
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // for current user
-import 'package:cloud_firestore/cloud_firestore.dart'; // for saving mechanic data
-import 'package:google_maps_flutter/google_maps_flutter.dart'; // for map widget
-import 'package:geolocator/geolocator.dart'; // for live location & permissions
-import 'package:http/http.dart' as http; // for Google Places autocomplete API
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:http/http.dart' as http;
 
 class AddMechanicScreen extends StatefulWidget {
   const AddMechanicScreen({super.key});
@@ -23,103 +22,94 @@ class _AddMechanicScreenState extends State<AddMechanicScreen> {
 
   LatLng? _selectedLocation;
 
+  Future<void> _openMapPicker() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const MapPickerScreen(),
+      ),
+    );
+
+    if (result != null && result is LatLng) {
+      setState(() => _selectedLocation = result);
+    }
+  }
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    if (_selectedLocation == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please select location")),
+      );
+      return;
+    }
+
+    setState(() {}); // trigger loading if you add _isLoading later
+
+    try {
+      final user = FirebaseAuth.instance.currentUser!;
+      await FirebaseFirestore.instance
+          .collection('providers')
+          .doc(user.uid)
+          .set({
+        "type": "mechanic",
+        "name": _nameController.text.trim(),
+        "phone": _phoneController.text.trim(),
+        "location": GeoPoint(
+          _selectedLocation!.latitude,
+          _selectedLocation!.longitude,
+        ),
+        "createdAt": Timestamp.now(),
+      }, SetOptions(merge: true));
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Mechanic added successfully")),
+      );
+
+      Navigator.pop(context);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to add mechanic: $e")),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text('Add Mechanic'),
-        backgroundColor: const Color(0xFF120A4D),
-        foregroundColor: Colors.white,
-        elevation: 0,
-      ),
+      appBar: AppBar(title: const Text("Add Mechanic")),
       body: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.all(16),
         child: Form(
           key: _formKey,
           child: Column(
             children: [
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Mechanic Name'),
-                validator: (value) =>
-                    value!.trim().isEmpty ? 'Name is required' : null,
+                validator: (v) => v!.trim().isEmpty ? "Enter name" : null,
+                decoration: const InputDecoration(labelText: "Name"),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 10),
               TextFormField(
                 controller: _phoneController,
-                decoration: const InputDecoration(labelText: 'Phone Number'),
-                keyboardType: TextInputType.phone,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty)
-                    return 'Phone is required';
-                  if (value.length < 9) return 'Invalid phone number';
-                  return null;
-                },
+                validator: (v) => v!.trim().isEmpty ? "Enter phone" : null,
+                decoration: const InputDecoration(labelText: "Phone"),
               ),
-              const SizedBox(height: 24),
-
-              // Location selection tile
+              const SizedBox(height: 20),
               ListTile(
-                title: const Text('Select Mechanic Location'),
-                subtitle: Text(
-                  _selectedLocation == null
-                      ? 'Tap to open map and pick location'
-                      : 'Selected: ${_selectedLocation!.latitude.toStringAsFixed(4)}, ${_selectedLocation!.longitude.toStringAsFixed(4)}',
-                ),
-                trailing:
-                    const Icon(Icons.location_on, color: Color(0xFF120A4D)),
-                tileColor: Colors.grey[100],
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('Map picker coming in next steps')),
-                  );
-                },
+                title: const Text("Select Location"),
+                subtitle: Text(_selectedLocation == null
+                    ? "Tap to pick"
+                    : "${_selectedLocation!.latitude}, ${_selectedLocation!.longitude}"),
+                trailing: const Icon(Icons.map),
+                onTap: _openMapPicker,
               ),
-
               const Spacer(),
-
-              // Submit button
-              SizedBox(
-                width: double.infinity,
-                height: 54,
-                child: ElevatedButton(
-                  onPressed: () {
-                    if (!_formKey.currentState!.validate()) return;
-
-                    if (_selectedLocation == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Please select location')),
-                      );
-                      return;
-                    }
-
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text(
-                              'Mechanic details validated - submit coming soon')),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF120A4D),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                    elevation: 2,
-                  ),
-                  child: const Text(
-                    'Submit Mechanic Details',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 32),
+              ElevatedButton(
+                onPressed: _submit,
+                child: const Text("Submit"),
+              )
             ],
           ),
         ),
@@ -128,7 +118,6 @@ class _AddMechanicScreenState extends State<AddMechanicScreen> {
   }
 }
 
-// Inner class for map picker screen (added in commit 7)
 class MapPickerScreen extends StatefulWidget {
   const MapPickerScreen({super.key});
 
@@ -137,75 +126,155 @@ class MapPickerScreen extends StatefulWidget {
 }
 
 class _MapPickerScreenState extends State<MapPickerScreen> {
+  LatLng _pickedLocation = const LatLng(6.9271, 79.8612);
   GoogleMapController? _mapController;
 
-  // Default initial position: Colombo city center
-  LatLng _currentPosition = const LatLng(6.9271, 79.8612);
+  final TextEditingController _searchController = TextEditingController();
+  List<dynamic> _suggestions = [];
+
+  final String apiKey =
+      "YOUR_ACTUAL_API_KEY_HERE"; // ← Replace with your real key
 
   @override
   void initState() {
     super.initState();
-    _getLiveLocation(); // NEW: call live location on init
+    _getLiveLocation();
   }
 
-  // NEW: Get user's current location + permission
   Future<void> _getLiveLocation() async {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Location services are disabled')),
-      );
+    LocationPermission permission = await Geolocator.requestPermission();
+
+    if (permission == LocationPermission.denied ||
+        permission == LocationPermission.deniedForever) {
       return;
     }
 
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Location permissions denied')),
-        );
-        return;
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Location permissions permanently denied')),
-      );
-      return;
-    }
-
-    Position position = await Geolocator.getCurrentPosition(
+    Position pos = await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high,
     );
 
+    final live = LatLng(pos.latitude, pos.longitude);
+
     setState(() {
-      _currentPosition = LatLng(position.latitude, position.longitude);
+      _pickedLocation = live;
     });
 
-    // Animate camera to user's location
     _mapController?.animateCamera(
-      CameraUpdate.newLatLngZoom(_currentPosition, 17.0),
+      CameraUpdate.newLatLngZoom(live, 17),
+    );
+  }
+
+  Future<void> _searchPlaces(String input) async {
+    if (input.isEmpty) {
+      setState(() => _suggestions = []);
+      return;
+    }
+
+    final url =
+        "https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$input&key=$apiKey";
+
+    final res = await http.get(Uri.parse(url));
+    final data = json.decode(res.body);
+
+    setState(() {
+      _suggestions = data["predictions"] ?? [];
+    });
+  }
+
+  Future<void> _selectPlace(String placeId) async {
+    final url =
+        "https://maps.googleapis.com/maps/api/place/details/json?place_id=$placeId&key=$apiKey";
+
+    final res = await http.get(Uri.parse(url));
+    final data = json.decode(res.body);
+
+    final loc = data["result"]["geometry"]["location"];
+
+    final newLoc = LatLng(loc["lat"], loc["lng"]);
+
+    setState(() {
+      _pickedLocation = newLoc;
+      _suggestions = [];
+      _searchController.clear();
+    });
+
+    _mapController?.animateCamera(
+      CameraUpdate.newLatLngZoom(newLoc, 17),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: GoogleMap(
-        initialCameraPosition: CameraPosition(
-          target: _currentPosition,
-          zoom: 14.0,
-        ),
-        onMapCreated: (GoogleMapController controller) {
-          _mapController = controller;
-        },
-        myLocationEnabled: true,
-        myLocationButtonEnabled: true,
-        zoomControlsEnabled: true,
-        mapType: MapType.normal,
+      body: Stack(
+        children: [
+          GoogleMap(
+            initialCameraPosition: CameraPosition(
+              target: _pickedLocation,
+              zoom: 14,
+            ),
+            onMapCreated: (c) => _mapController = c,
+            myLocationEnabled: true,
+            myLocationButtonEnabled: true,
+            zoomControlsEnabled: true,
+            onCameraMove: (pos) {
+              _pickedLocation = pos.target;
+            },
+          ),
+          const Center(
+            child: Icon(Icons.location_pin, size: 45, color: Colors.red),
+          ),
+          Positioned(
+            top: 50,
+            left: 15,
+            right: 15,
+            child: Column(
+              children: [
+                Material(
+                  elevation: 5,
+                  borderRadius: BorderRadius.circular(10),
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: _searchPlaces,
+                    decoration: const InputDecoration(
+                      hintText: "Search location...",
+                      prefixIcon: Icon(Icons.search),
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.all(15),
+                    ),
+                  ),
+                ),
+                if (_suggestions.isNotEmpty)
+                  Container(
+                    height: 200,
+                    color: Colors.white,
+                    child: ListView.builder(
+                      itemCount: _suggestions.length,
+                      itemBuilder: (context, index) {
+                        final item = _suggestions[index];
+
+                        return ListTile(
+                          title: Text(item["description"]),
+                          onTap: () => _selectPlace(item["place_id"]),
+                        );
+                      },
+                    ),
+                  )
+              ],
+            ),
+          ),
+          Positioned(
+            bottom: 30,
+            left: 20,
+            right: 20,
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context, _pickedLocation);
+              },
+              child: const Text("Confirm Location"),
+            ),
+          )
+        ],
       ),
     );
   }
