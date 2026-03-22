@@ -135,6 +135,44 @@ class _AddServiceTypeScreenState extends State<AddServiceTypeScreen> {
           ),
 
           const SizedBox(height: 32),
+
+          SizedBox(
+            width: double.infinity,
+            height: 54,
+            child: ElevatedButton(
+              onPressed: () {
+                final selected =
+                    _serviceCategories.entries.where((e) => e.value).length;
+                if (selected == 0) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Please select at least one service')),
+                  );
+                  return;
+                }
+
+                // Placeholder for future submit logic
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                      content: Text(
+                          'Selected $selected services - Submit coming soon')),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF120A4D),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+                elevation: 2,
+              ),
+              child: const Text(
+                'ADD SERVICES',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 32),
         ],
       ),
     );
