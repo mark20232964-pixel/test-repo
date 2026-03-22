@@ -39,13 +39,43 @@ class _AddMechanicScreenState extends State<AddMechanicScreen> {
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(labelText: 'Mechanic Name'),
+                validator: (value) =>
+                    value!.trim().isEmpty ? 'Name is required' : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _phoneController,
                 decoration: const InputDecoration(labelText: 'Phone Number'),
                 keyboardType: TextInputType.phone,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty)
+                    return 'Phone is required';
+                  if (value.length < 9) return 'Invalid phone number';
+                  return null;
+                },
               ),
+              const SizedBox(height: 24),
+
+              // NEW: Location selection tile (placeholder for now)
+              ListTile(
+                title: const Text('Select Mechanic Location'),
+                subtitle: const Text('Tap to open map and pick location'),
+                trailing:
+                    const Icon(Icons.location_on, color: Color(0xFF120A4D)),
+                tileColor: Colors.grey[100],
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                onTap: () {
+                  // Placeholder action - map picker coming in later commits
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Map picker coming in next steps')),
+                  );
+                },
+              ),
+
               const Spacer(),
             ],
           ),
