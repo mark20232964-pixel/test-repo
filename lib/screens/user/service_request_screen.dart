@@ -230,4 +230,43 @@ class _ServiceRequestScreenState extends State<ServiceRequestScreen>
     await _drawRoute();
     calculateETA();
   }
+
+  // 🔍 SEARCH
+  Future<void> _searchService(String query) async {
+    if (_userLocation == null) return;
+
+    setState(() {
+      _isSearching = true;
+      _requestAccepted = false;
+    });
+
+    final user = FirebaseAuth.instance.currentUser;
+
+    final docRef = await FirebaseFirestore.instance.collection('requests').add({
+      'userId': user?.uid ?? "guest",
+      'userName': user?.displayName ?? "Guest User",
+      'providerId': null,
+      'issue': query,
+      'location': GeoPoint(_userLocation!.latitude, _userLocation!.longitude),
+      'status': 'pending',
+      'timestamp': FieldValue.serverTimestamp(),
+    });
+
+    _currentRequestId = docRef.id;
+
+    listenToRequest(docRef.id);
+
+    _timeoutTimer = Timer(const Duration(seconds: 30), () async {
+      if (!_requestAccepted && _currentRequestId != null) {
+        await FirebaseFirestore.instance
+            .collection('requests')
+            .doc(_currentRequestId)
+            .update({'status': 'timeout'});
+
+        setState(() {
+          _isSearching = false;
+        });
+      }
+    });
+  }
 }
