@@ -130,6 +130,11 @@ class _ProviderOngoingScreenState extends State<ProviderOngoingScreen> {
             itemBuilder: (context, index) {
               final doc = requests[index];
               final data = doc.data() as Map<String, dynamic>;
+              deleteIfExpired(doc);
+
+              if (isExpired(data['timestamp'])) {
+                return const SizedBox();
+              }
 
               return Container(
                 margin: const EdgeInsets.only(bottom: 15),
