@@ -80,4 +80,17 @@ class _ProviderOngoingScreenState extends State<ProviderOngoingScreen> {
     stopTracking();
     super.dispose();
   }
+
+  double calculateDistance(GeoPoint userLocation) {
+    if (_providerLocation == null) return 0;
+
+    double meters = Geolocator.distanceBetween(
+      _providerLocation!.latitude,
+      _providerLocation!.longitude,
+      userLocation.latitude,
+      userLocation.longitude,
+    );
+
+    return meters / 1000;
+  }
 }
