@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'add_mechanic.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AddServiceTypeScreen extends StatefulWidget {
   const AddServiceTypeScreen({super.key});
@@ -140,24 +142,116 @@ class _AddServiceTypeScreenState extends State<AddServiceTypeScreen> {
             width: double.infinity,
             height: 54,
             child: ElevatedButton(
-              onPressed: () {
-                final selected =
-                    _serviceCategories.entries.where((e) => e.value).length;
-                if (selected == 0) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('Please select at least one service')),
-                  );
-                  return;
-                }
+              onPressed: _isLoading
+                  ? null
+                  : () async {
+                      final selectedServices = _serviceCategories.entries
+                          .where((e) => e.value)
+                          .map((e) => e.key)
+                          .toList();
 
-                // Placeholder for future submit logic
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                      content: Text(
-                          'Selected $selected services - Submit coming soon')),
-                );
-              },
+                      if (selectedServices.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content:
+                                  Text('Please select at least one service')),
+                        );
+                        return;
+                      }
+
+                      setState(() => _isLoading = true);
+
+                      try {
+                        final user = FirebaseAuth.instance.currentUser;
+
+                        if (user == null) {
+                          throw Exception('User not logged in');
+                        }
+
+                        await FirebaseFirestore.instance
+                            .collection('providers')
+                            .doc(user.uid)
+                            .set(
+                                {
+                              'services': selectedServices,
+                              'updatedAt': FieldValue.serverTimestamp(),
+                              // You can add more fields later (e.g. 'name', 'email', 'role')
+                            },
+                                SetOptions(
+                                    merge:
+                                        true)); // merge so it doesn't overwrite other data
+
+                        if (!mounted) return;
+
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) => AlertDialog(
+                            backgroundColor: const Color(0xFFE6F4E6),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20)),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const CircleAvatar(
+                                  radius: 40,
+                                  backgroundColor: Colors.green,
+                                  child: Icon(Icons.check,
+                                      color: Colors.white, size: 50),
+                                ),
+                                const SizedBox(height: 16),
+                                const Text(
+                                  'Success!',
+                                  style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87),
+                                ),
+                                const Text(
+                                  'Services added to your profile!',
+                                  style: TextStyle(
+                                      fontSize: 16, color: Colors.black87),
+                                ),
+                                const SizedBox(height: 24),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.pop(context); // close dialog
+                                      Navigator.pop(
+                                          context); // close add screen
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.white,
+                                      foregroundColor: Colors.black87,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12)),
+                                    ),
+                                    child: const Text('OK',
+                                        style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black87)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      } catch (e) {
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text(
+                                  'Failed to add services: ${e.toString()}')),
+                        );
+                      } finally {
+                        if (mounted) {
+                          setState(() => _isLoading = false);
+                        }
+                      }
+                    },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF120A4D),
                 foregroundColor: Colors.white,
