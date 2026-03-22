@@ -359,6 +359,33 @@ Widget build(BuildContext context) {
             ),
           ],
         ),
+
+        // 🚀 SEARCHING PANEL
+        if (_isSearching)
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              margin: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(25),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const LinearProgressIndicator(color: Colors.deepPurple),
+                  const SizedBox(height: 15),
+                  const Text("Searching for nearby mechanic..."),
+                  const SizedBox(height: 15),
+                  ElevatedButton(
+                    onPressed: cancelRequest,
+                    child: const Text("Cancel Request"),
+                  ),
+                ],
+              ),
+            ),
+          ),
       ],
     ),
   );
