@@ -124,8 +124,23 @@ class _ProviderOngoingScreenState extends State<ProviderOngoingScreen> {
             return const Center(child: Text("No ongoing requests"));
           }
 
-          return const Center(
-            child: Text("Requests Loaded"),
+          return ListView.builder(
+            padding: const EdgeInsets.all(12),
+            itemCount: requests.length,
+            itemBuilder: (context, index) {
+              final doc = requests[index];
+              final data = doc.data() as Map<String, dynamic>;
+
+              return Container(
+                margin: const EdgeInsets.only(bottom: 15),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(data['userName'] ?? "User"),
+              );
+            },
           );
         },
       ),
