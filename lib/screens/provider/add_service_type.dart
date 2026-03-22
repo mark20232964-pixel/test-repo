@@ -13,6 +13,16 @@ class AddServiceTypeScreen extends StatefulWidget {
 class _AddServiceTypeScreenState extends State<AddServiceTypeScreen> {
   bool _isLoading = false;
 
+  final Map<String, bool> _serviceCategories = {
+    'Towing': false,
+    'Battery Replacement': false,
+    'Tire Change': false,
+    'Fuel Delivery': false,
+    'Jump Start': false,
+    'Emergency Repair': false,
+    'Other': false,
+  };
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
