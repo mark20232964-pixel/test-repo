@@ -98,6 +98,57 @@ class _SosScreenState extends State<SosScreen> {
     }
   }
 
+  Future<void> _searchNearbyEmergencyServices(double lat, double lng) async {
+    const types = ['hospital', 'police', 'fire_station'];
+    final List<Map<String, dynamic>> results = [];
+
+    for (String type in types) {
+      final url = Uri.parse(
+        'https://maps.googleapis.com/maps/api/place/nearbysearch/json'
+        '?location=$lat,$lng'
+        '&radius=5000' // 5 km
+        '&type=$type'
+        '&key=$_googleApiKey',
+      );
+
+      try {
+        final response = await http.get(url);
+        if (response.statusCode == 200) {
+          final data = jsonDecode(response.body);
+          if (data['status'] == 'OK' && data['results'] != null) {
+            for (var place in data['results'] as List) {
+              final name = place['name'] ?? 'Unknown';
+              final vicinity = place['vicinity'] ?? '';
+              final rating = place['rating']?.toString() ?? 'N/A';
+              final latLng = place['geometry']['location'];
+              final distance = Geolocator.distanceBetween(lat, lng, latLng['lat'], latLng['lng']) / 1000;
+
+              results.add({
+                'name': name,
+                'type': type[0].toUpperCase() + type.substring(1),
+                'vicinity': vicinity,
+                'distance': '${distance.toStringAsFixed(1)} km',
+                'rating': rating,
+                'phone': place['formatted_phone_number'] ?? place['international_phone_number'] ?? null,
+              });
+            }
+          }
+        }
+      } catch (e) {
+        print("Error searching $type: $e");
+      }
+    }
+
+    if (mounted) {
+      setState(() {
+        _nearbyServices = results;
+        if (_nearbyServices.isEmpty && _errorMessage == null) {
+          _errorMessage = 'No emergency services found within 5 km.';
+        }
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
