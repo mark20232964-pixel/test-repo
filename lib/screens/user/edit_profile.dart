@@ -39,9 +39,8 @@ class _UserEditProfileScreenState extends State<UserEditProfileScreen> {
     _loadUserData();
   }
 
-    Future<void> _loadUserData() async {
+  Future<void> _loadUserData() async {
     setState(() => _isLoading = true);
-
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       setState(() => _isLoading = false);
@@ -49,19 +48,16 @@ class _UserEditProfileScreenState extends State<UserEditProfileScreen> {
     }
 
     try {
-      final doc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .get();
-
+      final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
       if (doc.exists) {
         final data = doc.data()!;
-
         setState(() {
           _firstNameController.text = data['firstName'] ?? '';
           _lastNameController.text = data['lastName'] ?? '';
           _phoneController.text = data['phone'] ?? '';
           _profileImageUrl = data['profileImageUrl'];
+          
+          print("Loaded profileImageUrl from Firestore: $_profileImageUrl");
 
           if (data['dob'] != null) {
             final timestamp = data['dob'] as Timestamp;
@@ -69,7 +65,6 @@ class _UserEditProfileScreenState extends State<UserEditProfileScreen> {
             _dobController.text =
                 "${_selectedDob!.day.toString().padLeft(2, '0')}/${_selectedDob!.month.toString().padLeft(2, '0')}/${_selectedDob!.year}";
           }
-
           _selectedGender = data['gender'];
           _isLoading = false;
         });
@@ -77,7 +72,25 @@ class _UserEditProfileScreenState extends State<UserEditProfileScreen> {
         setState(() => _isLoading = false);
       }
     } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to load profile: $e')),
+      );
       setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final XFile? pickedFile = await _picker.pickImage(source: source);
+      if (pickedFile != null) {
+        setState(() {
+          _profileImage = File(pickedFile.path);
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error picking image: $e')),
+      );
     }
   }
 }
