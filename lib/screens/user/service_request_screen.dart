@@ -42,4 +42,17 @@ class _ServiceRequestScreenState extends State<ServiceRequestScreen>
   late Animation<double> _animation;
 
   final String googleApiKey = "AIzaSyDC-Vg3GG5uDyDb5JuIzPKeKEIeUXwoXho";
+  @override
+  void initState() {
+    super.initState();
+    _searchController.text = widget.initialQuery;
+    _getUserLocation();
+
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat();
+
+    _animation = Tween<double>(begin: 0, end: 1).animate(_animationController);
+  }
 }
