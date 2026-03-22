@@ -16,4 +16,30 @@ class ServiceRequestScreen extends StatefulWidget {
 }
 
 class _ServiceRequestScreenState extends State<ServiceRequestScreen>
-    with SingleTickerProviderStateMixin {}
+    with SingleTickerProviderStateMixin {
+  final TextEditingController _searchController = TextEditingController();
+
+  GoogleMapController? _mapController;
+  Position? _userLocation;
+  LatLng? _providerLocation;
+
+  String? _providerName;
+  String _eta = "";
+
+  final Set<Marker> _markers = {};
+  final Set<Polyline> _polylines = {};
+
+  bool _requestAccepted = false;
+  bool _isSearching = false;
+
+  String? _currentRequestId;
+  StreamSubscription? _requestListener;
+  Timer? _timeoutTimer;
+
+  final polylinePoints = PolylinePoints();
+
+  late AnimationController _animationController;
+  late Animation<double> _animation;
+
+  final String googleApiKey = "AIzaSyDC-Vg3GG5uDyDb5JuIzPKeKEIeUXwoXho";
+}
