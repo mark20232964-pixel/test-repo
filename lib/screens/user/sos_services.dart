@@ -1,3 +1,12 @@
+import 'dart:async';
+import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
+
 class SosScreen extends StatefulWidget {
   const SosScreen({super.key});
 
@@ -14,6 +23,13 @@ class _SosScreenState extends State<SosScreen> {
   bool _sosActive = false;
 
   StreamSubscription<Position>? _positionStreamSubscription;
+
+  // Google Places API key
+  static const String _googleApiKey = 'AIzaSyDC-Vg3GG5uDyDb5JuIzPKeKEIeUXwoXho';
+
+  // Controls how often we re-search places (avoid API spam)
+  Position? _lastSearchedPosition;
+  static const double _minDistanceToRefresh = 300.0; // meters
 
   @override
   void dispose() {
