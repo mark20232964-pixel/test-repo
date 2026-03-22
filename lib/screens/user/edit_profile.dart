@@ -282,6 +282,28 @@ class _UserEditProfileScreenState extends State<UserEditProfileScreen> {
 
               const SizedBox(height: 20),
 
+              // Last Name
+              TextFormField(
+                controller: _lastNameController,
+                style: const TextStyle(color: Colors.black87, fontSize: 16, fontWeight: FontWeight.bold),
+                decoration: InputDecoration(
+                  labelText: 'Last Name',
+                  labelStyle: const TextStyle(color: Colors.black54),
+                  hintStyle: const TextStyle(color: Colors.grey),
+                  prefixIcon: Icon(Icons.person_outline, color: accentDarkBlue),
+                  filled: true,
+                  fillColor: const Color(0xFFF5F5F5),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+                validator: (v) => v?.trim().isEmpty ?? true ? 'Required' : null,
+              ),
+
+              const SizedBox(height: 20),
+
+
             ]
           ),
         ),
