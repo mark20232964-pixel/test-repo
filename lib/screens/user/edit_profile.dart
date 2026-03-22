@@ -224,6 +224,43 @@ class _UserEditProfileScreenState extends State<UserEditProfileScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 20),
+
+              // Profile Picture
+              GestureDetector(
+                onTap: _showImagePickerOptions,
+                child: Stack(
+                  children: [
+                    CircleAvatar(
+                      radius: 70,
+                      backgroundColor: Colors.grey[300],
+                      backgroundImage: _profileImage != null
+                          ? FileImage(_profileImage!)
+                          : (_profileImageUrl != null && _profileImageUrl!.isNotEmpty
+                              ? NetworkImage(_profileImageUrl!)
+                              : const NetworkImage('https://via.placeholder.com/150') as ImageProvider),
+                      onBackgroundImageError: (_, __) {
+                        print("Failed to load profile image from URL: $_profileImageUrl");
+                      },
+                    ),
+                    Positioned(
+                      bottom: 4,
+                      right: 4,
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: accentDarkBlue,           // ← changed to dark blue
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 3),
+                        ),
+                        child: const Icon(Icons.camera_alt, color: Colors.white, size: 24),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 32),
+
             ]
           ),
         ),
