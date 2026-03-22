@@ -2,7 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'our_services_screen.dart';
-import 'provider_add_new_garage_screen.dart';
+import 'add_service_type.dart'; // your service type screen
+import 'provider_profile_screen.dart'; // profile screen
 
 class ProviderDashboard extends StatefulWidget {
   const ProviderDashboard({super.key});
@@ -12,7 +13,7 @@ class ProviderDashboard extends StatefulWidget {
 }
 
 class _ProviderDashboardState extends State<ProviderDashboard> {
-  int _selectedIndex = 0; // home selected by default
+  int _selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +21,6 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          // Header with location
           Container(
             padding:
                 const EdgeInsets.only(top: 60, left: 20, right: 20, bottom: 20),
@@ -43,8 +43,6 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
               ],
             ),
           ),
-
-          // Menu cards
           Expanded(
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -101,7 +99,6 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
             return;
           }
 
-          // Other icons (home, chat) → just highlight
           setState(() {
             _selectedIndex = index;
           });
@@ -127,22 +124,6 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
             label: '',
           ),
         ],
-        onTap: (index) {
-          if (index == 1) {
-            // navigate to Add Garage screen when "+" is tapped
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const AddGarageScreen(),
-              ),
-            );
-            return;
-          }
-          setState(() {
-            _selectedIndex =
-                index; // this makes the selected icon highlight in black
-          });
-        },
       ),
     );
   }

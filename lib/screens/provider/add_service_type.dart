@@ -1,8 +1,8 @@
 // lib/screens/provider/add_service_type.dart
 
 import 'package:flutter/material.dart';
-import 'add_mechanic.dart'; // your mechanic screen
-import 'provider_add_new_garage_screen.dart'; // friend's garage screen
+import 'add_mechanic.dart';
+import 'provider_add_new_garage_screen.dart';
 
 class AddServiceTypeScreen extends StatelessWidget {
   const AddServiceTypeScreen({super.key});
@@ -49,12 +49,12 @@ class AddServiceTypeScreen extends StatelessWidget {
               context,
               Icons.garage,
               "Garage / Workshop",
-              "Garage / Workshop", // changed from "Coming soon" so it looks clickable
+              "Garage / Workshop",
               () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const AddGarageScreen(),
+                    builder: (_) => const ProviderAddNewGarageScreen(),
                   ),
                 );
               },
