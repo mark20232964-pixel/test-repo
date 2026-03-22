@@ -54,7 +54,7 @@ class AddServiceTypeScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const ProviderAddNewGarageScreen(),
+                    builder: (_) => const AddGarageScreen(),
                   ),
                 );
               },

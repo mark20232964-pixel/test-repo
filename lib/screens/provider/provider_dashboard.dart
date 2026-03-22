@@ -2,8 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'our_services_screen.dart';
-import 'add_service_type.dart'; // your service type screen
-import 'provider_profile_screen.dart'; // ← ADD THIS IMPORT (your profile screen)
+import 'provider_add_new_garage_screen.dart';
 
 class ProviderDashboard extends StatefulWidget {
   const ProviderDashboard({super.key});
@@ -128,6 +127,22 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
             label: '',
           ),
         ],
+        onTap: (index) {
+          if (index == 1) {
+            // navigate to Add Garage screen when "+" is tapped
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const AddGarageScreen(),
+              ),
+            );
+            return;
+          }
+          setState(() {
+            _selectedIndex =
+                index; // this makes the selected icon highlight in black
+          });
+        },
       ),
     );
   }
