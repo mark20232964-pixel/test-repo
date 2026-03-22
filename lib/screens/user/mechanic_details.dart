@@ -7,6 +7,7 @@ import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MechanicDetailsScreen extends StatefulWidget {
+  final String providerId;
   final String name;
   final LatLng mechanicLocation;
   final double rating;
@@ -18,6 +19,7 @@ class MechanicDetailsScreen extends StatefulWidget {
 
   const MechanicDetailsScreen({
     super.key,
+    required this.providerId,
     required this.name,
     required this.mechanicLocation,
     required this.rating,
