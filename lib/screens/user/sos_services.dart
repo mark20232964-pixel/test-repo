@@ -255,4 +255,84 @@ class _SosScreenState extends State<SosScreen> {
               : _buildSosButtonScreen(),
     );
   }
+
+  Widget _buildSosButtonScreen() {
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text(
+            "Your live location will be used to find nearby help",
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.white70, fontSize: 16),
+          ),
+          const SizedBox(height: 40),
+          GestureDetector(
+            onTap: _sosActive ? null : _startSos,
+            child: Container(
+              width: 240,
+              height: 240,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: _sosActive ? Colors.grey[800] : Colors.red,
+                boxShadow: [
+                  BoxShadow(
+                    color: (_sosActive ? Colors.grey : Colors.red).withOpacity(0.6),
+                    blurRadius: 50,
+                    spreadRadius: 15,
+                  ),
+                ],
+              ),
+              child: Center(
+                child: Text(
+                  _sosActive ? 'LIVE' : 'SOS',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 72,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 32),
+          if (_sosActive) ...[
+            SizedBox(
+              width: double.infinity,
+              height: 60,
+              child: ElevatedButton.icon(
+                onPressed: _cancelSosAlert,
+                icon: const Icon(Icons.cancel_outlined),
+                label: const Text('CANCEL SOS', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange[800],
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text('Tap if sent by mistake', style: TextStyle(color: Colors.white70, fontSize: 14)),
+          ] else ...[
+            const SizedBox(height: 40),
+            const Text("Tap for immediate emergency help", style: TextStyle(color: Colors.white, fontSize: 18)),
+            const SizedBox(height: 60),
+            SizedBox(
+              width: double.infinity,
+              height: 60,
+              child: ElevatedButton(
+                onPressed: _startSos,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                ),
+                child: const Text('SEND SOS ALERT', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
 }
