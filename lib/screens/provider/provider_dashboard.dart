@@ -2,7 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'our_services_screen.dart';
-import 'provider_add_new_garage_screen.dart'; // ← Correct import (same folder)
+import 'add_service_type.dart'; // your service type screen
+import 'provider_profile_screen.dart'; // ← ADD THIS IMPORT (your profile screen)
 
 class ProviderDashboard extends StatefulWidget {
   const ProviderDashboard({super.key});
@@ -25,7 +26,7 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
             padding:
                 const EdgeInsets.only(top: 60, left: 20, right: 20, bottom: 20),
             decoration: const BoxDecoration(
-              color: Color(0xFF1B1B4B), // dark navy blue
+              color: Color(0xFF1B1B4B),
               borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(20),
                 bottomRight: Radius.circular(20),
@@ -79,17 +80,29 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
         showUnselectedLabels: false,
         currentIndex: _selectedIndex,
         onTap: (index) {
+          // + button (index 1) → opens AddServiceTypeScreen
           if (index == 1) {
-            // "+" button → navigate to Add Garage screen
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) =>
-                    const ProviderAddNewGarageScreen(), // ← Correct class name
+                builder: (context) => const AddServiceTypeScreen(),
               ),
             );
             return;
           }
+
+          // Profile avatar (index 3) → opens ProfileScreen
+          if (index == 3) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ProfileScreen(),
+              ),
+            );
+            return;
+          }
+
+          // Other icons (home, chat) → just highlight
           setState(() {
             _selectedIndex = index;
           });

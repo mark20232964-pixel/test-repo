@@ -1,10 +1,4 @@
-// lib/screens/provider/profile_screen.dart
-//
-// Provider Profile Screen with Firebase integration
-// Loads data from Firestore 'providers/test-provider-1'
-// Supports profile photo upload (Storage), verification docs upload
-// Edit name/email dialog, list options, logout to role selection
-// Built in 10 incremental commits
+// lib/screens/provider/provider_profile_screen.dart
 
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -121,7 +115,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() {});
   }
 
-  // Edit Profile Dialog (ADDED NOW)
+  // Edit Profile Dialog
   void _showEditProfileDialog() {
     final nameController = TextEditingController(text: _providerName ?? '');
     final emailController = TextEditingController(text: _providerEmail ?? '');
@@ -173,7 +167,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   // Logout
   void _logout() {
-    // TODO: Uncomment when Firebase Auth is added
+    // TODO: Add real Firebase sign out later
     // await FirebaseAuth.instance.signOut();
     Navigator.pushAndRemoveUntil(
       context,
@@ -209,8 +203,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Column(
                 children: [
                   const SizedBox(height: 40),
-
-                  // Profile photo + camera overlay (upload on tap)
                   Center(
                     child: Stack(
                       children: [
@@ -243,9 +235,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ],
                     ),
                   ),
-
                   const SizedBox(height: 16),
-
                   Text(
                     _providerName ?? "Name not set",
                     style: const TextStyle(
@@ -256,19 +246,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     _providerEmail ?? "Email not set",
                     style: const TextStyle(fontSize: 16, color: Colors.grey),
                   ),
-
                   TextButton(
-                    onPressed:
-                        _showEditProfileDialog, // ← now calls the real function
+                    onPressed: _showEditProfileDialog,
                     child: const Text(
                       "Edit profile",
                       style: TextStyle(color: Color(0xFF6A48FF)),
                     ),
                   ),
-
                   const SizedBox(height: 30),
-
-                  // List tiles
                   _buildTile(Icons.history, "History", () {}),
                   _buildTile(Icons.notifications_outlined, "Verify doc",
                       _uploadVerificationDoc),
@@ -277,9 +262,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   _buildTile(
                       Icons.privacy_tip_outlined, "Privacy Policy", () {}),
                   _buildTile(Icons.help_outline, "Support Center", () {}),
-
                   const SizedBox(height: 40),
-
                   _buildTile(Icons.logout, "Log out", _logout),
                 ],
               ),
