@@ -49,4 +49,25 @@ class _ProviderOngoingScreenState extends State<ProviderOngoingScreen> {
     super.initState();
     getProviderLocation();
   }
+
+  void startLiveTracking(String requestId) {
+    _positionStream?.cancel();
+
+    _positionStream = Geolocator.getPositionStream(
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 10,
+      ),
+    ).listen((Position position) async {
+      await FirebaseFirestore.instance
+          .collection('requests')
+          .doc(requestId)
+          .update({
+        'providerLocation': GeoPoint(
+          position.latitude,
+          position.longitude,
+        ),
+      });
+    });
+  }
 }
