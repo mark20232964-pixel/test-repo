@@ -1,5 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class AddGarageScreen extends StatefulWidget {
   const AddGarageScreen({super.key});
@@ -9,6 +10,7 @@ class AddGarageScreen extends StatefulWidget {
 }
 
 class _AddGarageScreenState extends State<AddGarageScreen> {
+
   final _formKey = GlobalKey<FormState>();
 
   final _nameController = TextEditingController();
@@ -16,7 +18,6 @@ class _AddGarageScreenState extends State<AddGarageScreen> {
   final _contactController = TextEditingController();
   final _emailController = TextEditingController();
   final _descriptionController = TextEditingController();
-  final _mechanicsController = TextEditingController(); // ← new field
 
   bool _isLoading = false;
 
@@ -37,7 +38,6 @@ class _AddGarageScreenState extends State<AddGarageScreen> {
     _contactController.dispose();
     _emailController.dispose();
     _descriptionController.dispose();
-    _mechanicsController.dispose();
     super.dispose();
   }
 
@@ -58,112 +58,137 @@ class _AddGarageScreenState extends State<AddGarageScreen> {
 
     setState(() => _isLoading = true);
 
-    // TODO: Replace with real API / Firebase call
-    await Future.delayed(const Duration(seconds: 2)); // fake delay
+    // Firebase call to add garage
+    try {
+      final user = FirebaseAuth.instance.currentUser;
 
-    setState(() => _isLoading = false);
+      if (user == null) {
+        throw Exception('User not logged in');
+      }
+    
 
-    if (!mounted) return;
+      await FirebaseFirestore.instance.collection('garages').add({
+        'name': _nameController.text.trim(),
+        'address': _addressController.text.trim(),
+        'contact': _contactController.text.trim(),
+        'email': _emailController.text.trim(),
+        'description': _descriptionController.text.trim(),
+        'services': selectedServices,
+        'createdBy': user.uid,
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
 
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFFE6F4E6),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const CircleAvatar(
-              radius: 40,
-              backgroundColor: Colors.green,
-              child: Icon(Icons.check, color: Colors.white, size: 50),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Success!',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            Text(
-              'Garage "${_nameController.text.trim()}" added!',
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 16, color: Colors.black54),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  Navigator.pop(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black87,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                child: const Text('OK', style: TextStyle(fontSize: 18)),
+      if (!mounted) return;
+
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          backgroundColor: const Color(0xFFE6F4E6),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const CircleAvatar(
+                radius: 40,
+                backgroundColor: Colors.green,
+                child: Icon(Icons.check, color: Colors.white, size: 50),
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              const Text(
+                'Success!',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87),
+              ),
+              const Text(
+                'Garage Added. Thank You!',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
+              ),
+              const SizedBox(height: 24),
+                SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context); // dialog
+                    Navigator.pop(context); // screen
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black87,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: const Text('OK', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to add garage: ${e.toString()}')),
+      );
+    } finally {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: const Text('Add a Garage'),
         backgroundColor: const Color(0xFF1B1B4B),
-        iconTheme: const IconThemeData(color: Colors.white),
-        titleTextStyle: const TextStyle(
-          color: Colors.white,
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-        ),
+        surfaceTintColor: Colors.transparent,
+        // foregroundColor: Colors.white,
         elevation: 0,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12), 
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
-                // Add Garage Name field
-                const Text('Garage Name', style: TextStyle(fontSize:14,fontWeight: FontWeight.bold, color: Colors.black87)),
+                // Garage Name
+                const Text('Garage Name', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87, fontSize: 18)),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _nameController,
-                  style: const TextStyle(color: Colors.black87),
+                  cursorColor: const Color(0xFF120A4D),
+                  style: const TextStyle(color: Colors.black87, fontSize: 16),
                   validator: (v) => v?.trim().isEmpty ?? true ? 'Required' : null,
                   decoration: _inputDecoration('e.g. ABC Motors'),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
 
-                // Add Address field
-                const Text('Address', style: TextStyle(fontSize:14, fontWeight: FontWeight.bold, color: Colors.black87)),
+                // Address
+                const Text('Address', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87, fontSize: 18)),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _addressController,
-                  style: const TextStyle(color: Colors.black87),
+                  cursorColor: const Color(0xFF120A4D),
+                  style: const TextStyle(color: Colors.black87, fontSize: 16),
                   validator: (v) => v?.trim().isEmpty ?? true ? 'Required' : null,
                   decoration: _inputDecoration('e.g. 123, Main St, Colombo'),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
 
-                // Add Contact Number field 
-                const Text('Contact Number', style: TextStyle(fontSize:14,fontWeight: FontWeight.bold, color: Colors.black87)),
+                // Contact Number
+                const Text('Contact Number', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87, fontSize: 18)),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _contactController,
+                  cursorColor: const Color(0xFF120A4D),
                   keyboardType: TextInputType.phone,
-                  style: const TextStyle(color: Colors.black87),
+                  style: const TextStyle(color: Colors.black87, fontSize: 16),
                   validator: (v) {
                     if (v == null || v.trim().isEmpty) return 'Required';
                     if (v.length < 9) return 'Too short';
@@ -171,66 +196,43 @@ class _AddGarageScreenState extends State<AddGarageScreen> {
                   },
                   decoration: _inputDecoration('e.g. 0778404504'),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
 
-                // Add Email field
-                const Text('Email Address', style: TextStyle(fontSize:14, fontWeight: FontWeight.bold, color: Colors.black87)),
+                // Email
+                const Text('Email Address', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87, fontSize: 18)),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _emailController,
+                  cursorColor: const Color(0xFF120A4D),
                   keyboardType: TextInputType.emailAddress,
-                  style: const TextStyle(color: Colors.black87),
+                  style: const TextStyle(color: Colors.black87, fontSize: 16),
                   validator: (v) {
-                    if (v == null || v.isEmpty) return null;
-                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(v)) return 'Invalid email';
+                    if (v == null || v.isEmpty) return null; // optional
+                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(v)) {
+                      return 'Invalid email';
+                    }
                     return null;
                   },
                   decoration: _inputDecoration('e.g. abc@gmail.com'),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
 
-                // Add Description field
-                const Text('Description', style: TextStyle(fontSize:14,fontWeight: FontWeight.bold, color: Colors.black87)),
-                const SizedBox(height: 8),
+                // Description
+                const Text('Description', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87, fontSize: 18)),
+                const SizedBox(height: 6),
                 TextFormField(
                   controller: _descriptionController,
-                  maxLines: 3,
-                  style: const TextStyle(color: Colors.black87),
+                  cursorColor: const Color(0xFF120A4D),
+                  style: const TextStyle(color: Colors.black87, fontSize: 16),
+                  minLines: 2,
+                  maxLines: 2,
                   decoration: _inputDecoration('e.g. Full-service auto repair shop'),
                 ),
-                const SizedBox(height: 24),
-
-                // Mechanics Available field
-                const Text(
-                  'Mechanics Available in Garage',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.black87),
-                ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: _mechanicsController,
-                  maxLines: 3,
-                  minLines: 2,
-                  style: const TextStyle(color: Colors.black87),
-                  decoration: InputDecoration(
-                    hintText: 'John Doe, Sarah Perera, Kasun Wickramasinghe\n(one per line or comma separated)',
-                    hintStyle: const TextStyle(color: Colors.black54),
-                    filled: true,
-                    fillColor: const Color(0xFFF5F5F5),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  ),
-                ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 20),
 
                 // Service Categories
-                const Text(
-                  'Service Categories',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.black87),
-                ),
-                const SizedBox(height: 12),
+                const Text('Service Categories', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.black87)),
+                const SizedBox(height: 8),
 
                 LayoutBuilder(
                   builder: (context, constraints) {
@@ -239,15 +241,15 @@ class _AddGarageScreenState extends State<AddGarageScreen> {
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       crossAxisCount: crossCount,
-                      childAspectRatio: 3.2,
-                      mainAxisSpacing: 4,
+                      childAspectRatio: 3.8,
+                      mainAxisSpacing: 0,
                       crossAxisSpacing: 8,
                       children: _serviceCategories.keys.map((service) {
                         return CheckboxListTile(
-                          title: Text(service, style: const TextStyle(fontSize: 15, color: Colors.black87)),
+                          title: Text(service, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black54)),
                           value: _serviceCategories[service]!,
                           dense: true,
-                          activeColor: const Color(0xFF6A48FF),
+                          activeColor: const Color.fromARGB(255, 119, 104, 227),
                           onChanged: (bool? value) {
                             setState(() {
                               _serviceCategories[service] = value ?? false;
@@ -261,33 +263,37 @@ class _AddGarageScreenState extends State<AddGarageScreen> {
                   },
                 ),
 
-                const SizedBox(height: 40),
+                const SizedBox(height: 24),
 
                 // Submit Button
                 SizedBox(
                   width: double.infinity,
-                  height: 56,
+                  height: 54,
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _submitGarage,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF6A48FF),
+                      backgroundColor: const Color(0xFF120A4D),
                       foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      disabledBackgroundColor: Colors.grey.shade400,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       elevation: 2,
                     ),
                     child: _isLoading
                         ? const SizedBox(
-                            height: 24,
                             width: 24,
-                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                            height: 24,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                           )
                         : const Text(
-                            'Add Garage',
+                            'ADD GARAGE',
                             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                   ),
                 ),
-                const SizedBox(height: 40),
+
+                const SizedBox(height: 24),
               ],
             ),
           ),
@@ -299,7 +305,7 @@ class _AddGarageScreenState extends State<AddGarageScreen> {
   InputDecoration _inputDecoration(String hint) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(color: Colors.black54),
+      hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
       filled: true,
       fillColor: const Color(0xFFF5F5F5),
       border: OutlineInputBorder(
