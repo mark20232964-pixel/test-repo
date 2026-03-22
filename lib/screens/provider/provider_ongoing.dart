@@ -70,4 +70,14 @@ class _ProviderOngoingScreenState extends State<ProviderOngoingScreen> {
       });
     });
   }
+
+  void stopTracking() {
+    _positionStream?.cancel();
+  }
+
+  @override
+  void dispose() {
+    stopTracking();
+    super.dispose();
+  }
 }
