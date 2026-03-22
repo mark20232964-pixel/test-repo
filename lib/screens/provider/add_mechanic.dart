@@ -123,4 +123,20 @@ class _AddMechanicScreenState extends State<AddMechanicScreen> {
       ),
     );
   }
+  // Inner class for map picker screen
+class MapPickerScreen extends StatefulWidget {
+  const MapPickerScreen({super.key});
+
+  @override
+  State<MapPickerScreen> createState() => _MapPickerScreenState();
+}
+
+class _MapPickerScreenState extends State<MapPickerScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(child: Text('Map Picker Screen - Coming in next commits')),
+    );
+  }
+}
 }
