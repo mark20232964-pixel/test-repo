@@ -134,7 +134,6 @@ class _ProviderOngoingScreenState extends State<ProviderOngoingScreen> {
               GeoPoint userLoc = data['location'];
               double distance = calculateDistance(userLoc);
 
-              // ✅ ADDED
               LatLng userLatLng = LatLng(userLoc.latitude, userLoc.longitude);
 
               deleteIfExpired(doc);
@@ -143,73 +142,86 @@ class _ProviderOngoingScreenState extends State<ProviderOngoingScreen> {
                 return const SizedBox();
               }
 
-              return Container(
-                margin: const EdgeInsets.only(bottom: 15),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 🗺 MAP PREVIEW
-                    ClipRRect(
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(20),
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProviderRequestDetailsScreen(
+                        requestId: doc.id,
+                        data: data,
                       ),
-                      child: SizedBox(
-                        height: 150,
-                        child: GoogleMap(
-                          initialCameraPosition: CameraPosition(
-                            target: userLatLng,
-                            zoom: 14,
-                          ),
-                          markers: {
-                            Marker(
-                              markerId: const MarkerId("user"),
-                              position: userLatLng,
+                    ),
+                  );
+                },
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 15),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 🗺 MAP PREVIEW
+                      ClipRRect(
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(20),
+                        ),
+                        child: SizedBox(
+                          height: 150,
+                          child: GoogleMap(
+                            initialCameraPosition: CameraPosition(
+                              target: userLatLng,
+                              zoom: 14,
                             ),
-                          },
-                          zoomControlsEnabled: false,
-                          liteModeEnabled: true,
+                            markers: {
+                              Marker(
+                                markerId: const MarkerId("user"),
+                                position: userLatLng,
+                              ),
+                            },
+                            zoomControlsEnabled: false,
+                            liteModeEnabled: true,
+                          ),
                         ),
                       ),
-                    ),
 
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            data['userName'] ?? "User",
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              data['userName'] ?? "User",
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 5),
-                          Text(
-                            data['issue'] ?? "",
-                            style: const TextStyle(color: Colors.grey),
-                          ),
-                          const SizedBox(height: 10),
-                          Row(
-                            children: [
-                              const Icon(Icons.location_on, size: 16),
-                              const SizedBox(width: 5),
-                              Text("${distance.toStringAsFixed(1)} km away"),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          const Text(
-                            "🚗 Ongoing",
-                            style: TextStyle(color: Colors.green),
-                          ),
-                        ],
+                            const SizedBox(height: 5),
+                            Text(
+                              data['issue'] ?? "",
+                              style: const TextStyle(color: Colors.grey),
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                const Icon(Icons.location_on, size: 16),
+                                const SizedBox(width: 5),
+                                Text("${distance.toStringAsFixed(1)} km away"),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            const Text(
+                              "🚗 Ongoing",
+                              style: TextStyle(color: Colors.green),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               );
             },
