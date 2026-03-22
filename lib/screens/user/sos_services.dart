@@ -80,6 +80,37 @@ class _SosScreenState extends State<SosScreen> {
     }
   }
 
+  void _startLiveLocationUpdates() {
+    const locationSettings = LocationSettings(
+      accuracy: LocationAccuracy.best,      // or high / medium
+      distanceFilter: 50,                   // update only after 50m movement
+      timeLimit: Duration(seconds: 80),     // safety timeout
+    );
+
+    _positionStreamSubscription = Geolocator.getPositionStream(locationSettings: locationSettings).listen(
+      (Position position) async {
+        if (!mounted) return;
+
+        setState(() => _currentPosition = position);
+
+        // Only re-search if moved far enough (save API quota)
+        if (_lastSearchedPosition == null ||
+            Geolocator.distanceBetween(
+              _lastSearchedPosition!.latitude,
+              _lastSearchedPosition!.longitude,
+              position.latitude,
+              position.longitude,
+            ) >= _minDistanceToRefresh) {
+          await _searchNearbyEmergencyServices(position.latitude, position.longitude);
+          _lastSearchedPosition = position;
+        }
+      },
+      onError: (e) {
+        _showError('Location stream error: $e');
+      },
+    );
+  }
+
   Future<String?> _logSosAlert(double lat, double lng) async {
     final user = FirebaseAuth.instance.currentUser;
     try {
