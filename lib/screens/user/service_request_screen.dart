@@ -55,4 +55,12 @@ class _ServiceRequestScreenState extends State<ServiceRequestScreen>
 
     _animation = Tween<double>(begin: 0, end: 1).animate(_animationController);
   }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    _requestListener?.cancel();
+    _timeoutTimer?.cancel();
+    super.dispose();
+  }
 }
