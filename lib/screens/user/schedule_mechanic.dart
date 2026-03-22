@@ -14,6 +14,8 @@ class _ScheduleMechanicScreenState extends State<ScheduleMechanicScreen> {
   static const _primary = Color(0xFF1B1B4B);
   static const _accent = Color(0xFFE53935);
 
+  DateTime _currentMonth = DateTime.now();
+
   @override
   Widget build(BuildContext context) {
     final name = widget.schedule['name'] as String? ?? 'Mechanic';
@@ -32,6 +34,10 @@ class _ScheduleMechanicScreenState extends State<ScheduleMechanicScreen> {
                   children: [
                     const SizedBox(height: 16),
                     _buildMechanicProfile(name),
+                    const SizedBox(height: 20),
+                    _buildSectionLabel('Pick a Date'),
+                    const SizedBox(height: 10),
+                    _buildCalendarCard(),
                     const SizedBox(height: 24),
                   ],
                 ),
@@ -124,6 +130,54 @@ class _ScheduleMechanicScreenState extends State<ScheduleMechanicScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildCalendarCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 3)),
+        ],
+      ),
+      child: Column(
+        children: [
+          _buildMonthHeader(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMonthHeader() {
+    const monthNames = [
+      '', 'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December',
+    ];
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        GestureDetector(
+          onTap: () => setState(() => _currentMonth =
+              DateTime(_currentMonth.year, _currentMonth.month - 1)),
+          child: const Icon(Icons.chevron_left, size: 22, color: _primary),
+        ),
+        Text(
+          '${monthNames[_currentMonth.month]} ${_currentMonth.year}',
+          style: const TextStyle(
+              fontSize: 15, fontWeight: FontWeight.w700, color: _primary),
+        ),
+        GestureDetector(
+          onTap: () => setState(() => _currentMonth =
+              DateTime(_currentMonth.year, _currentMonth.month + 1)),
+          child: const Icon(Icons.chevron_right, size: 22, color: _primary),
+        ),
+      ],
     );
   }
 
