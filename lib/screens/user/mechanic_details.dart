@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:roadresq/screens/user/schedule_mechanic.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MechanicDetailsScreen extends StatefulWidget {
@@ -291,10 +292,20 @@ class _MechanicDetailsScreenState extends State<MechanicDetailsScreen> {
                           Expanded(
                             child: ElevatedButton(
                               onPressed: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content: Text("Booking coming soon")),
-                                );
+                                Map<String, dynamic> mechanic= {
+                                  'providerId': widget.providerId,
+                                  'name': widget.name,
+                                  'location': widget.mechanicLocation,
+                                  'rating': widget.rating,
+                                  'reviewsCount': widget.reviewsCount,
+                                  'description': widget.description,
+                                  'isVerified': widget.isVerified,
+                                  'joinedCount': widget.joinedCount,
+                                  'photoUrl': widget.photoUrl,
+                                };
+
+                                Navigator.push(context,
+                                MaterialPageRoute(builder: (context)=>ScheduleMechanicScreen(mechanic: mechanic)));
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF6A48FF),
