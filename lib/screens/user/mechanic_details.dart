@@ -1,3 +1,5 @@
+// lib/screens/user/mechanic_details.dart
+
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
@@ -7,11 +9,23 @@ import 'package:url_launcher/url_launcher.dart';
 class MechanicDetailsScreen extends StatefulWidget {
   final String name;
   final LatLng mechanicLocation;
+  final double rating;
+  final int reviewsCount;
+  final String description;
+  final bool isVerified;
+  final int joinedCount;
+  final String photoUrl;
 
   const MechanicDetailsScreen({
     super.key,
     required this.name,
     required this.mechanicLocation,
+    required this.rating,
+    required this.reviewsCount,
+    required this.description,
+    required this.isVerified,
+    required this.joinedCount,
+    required this.photoUrl,
   });
 
   @override
@@ -23,7 +37,7 @@ class _MechanicDetailsScreenState extends State<MechanicDetailsScreen> {
   List<LatLng> polylineCoordinates = [];
   GoogleMapController? _mapController;
 
-  final String apiKey = "YOUR_API_KEY_HERE";
+  final String apiKey = "AIzaSyDC-Vg3GG5uDyDb5JuIzPKeKEIeUXwoXho";
 
   @override
   void initState() {
@@ -31,31 +45,27 @@ class _MechanicDetailsScreenState extends State<MechanicDetailsScreen> {
     _loadEverything();
   }
 
-  // 🚀 LOAD WITHOUT BLOCKING UI
   Future<void> _loadEverything() async {
-    // STEP 1: Get location FIRST
-    Position pos = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
+    try {
+      Position pos = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+      userLocation = LatLng(pos.latitude, pos.longitude);
+    } catch (e) {
+      // Fallback if location fails
+    }
 
-    userLocation = LatLng(pos.latitude, pos.longitude);
-
-    setState(() {}); // 🔥 SHOW MAP IMMEDIATELY
-
-    // STEP 2: Load route AFTER UI shows
     await _getRoute();
-
-    setState(() {}); // 🔥 UPDATE ROUTE
+    setState(() {});
   }
 
-  // 🛣️ ROUTE
   Future<void> _getRoute() async {
+    if (userLocation == null) return;
+
     PolylinePoints polylinePoints = PolylinePoints();
 
     PolylineRequest request = PolylineRequest(
-      origin: PointLatLng(
-        userLocation!.latitude,
-        userLocation!.longitude,
-      ),
+      origin: PointLatLng(userLocation!.latitude, userLocation!.longitude),
       destination: PointLatLng(
         widget.mechanicLocation.latitude,
         widget.mechanicLocation.longitude,
@@ -71,33 +81,30 @@ class _MechanicDetailsScreenState extends State<MechanicDetailsScreen> {
     if (result.points.isNotEmpty) {
       polylineCoordinates =
           result.points.map((e) => LatLng(e.latitude, e.longitude)).toList();
-
-      // 🔥 MOVE CAMERA TO FIT ROUTE
       _fitMapToRoute();
     }
   }
 
-  // 🔥 AUTO ZOOM TO SHOW BOTH USER + MECHANIC
   void _fitMapToRoute() {
     if (_mapController == null || userLocation == null) return;
 
-    LatLngBounds bounds = LatLngBounds(
-      southwest: LatLng(
-        userLocation!.latitude < widget.mechanicLocation.latitude
-            ? userLocation!.latitude
-            : widget.mechanicLocation.latitude,
-        userLocation!.longitude < widget.mechanicLocation.longitude
-            ? userLocation!.longitude
-            : widget.mechanicLocation.longitude,
-      ),
-      northeast: LatLng(
-        userLocation!.latitude > widget.mechanicLocation.latitude
-            ? userLocation!.latitude
-            : widget.mechanicLocation.latitude,
-        userLocation!.longitude > widget.mechanicLocation.longitude
-            ? userLocation!.longitude
-            : widget.mechanicLocation.longitude,
-      ),
+    // Manual southwest/northeast calculation
+    double south = userLocation!.latitude < widget.mechanicLocation.latitude
+        ? userLocation!.latitude
+        : widget.mechanicLocation.latitude;
+    double west = userLocation!.longitude < widget.mechanicLocation.longitude
+        ? userLocation!.longitude
+        : widget.mechanicLocation.longitude;
+    double north = userLocation!.latitude > widget.mechanicLocation.latitude
+        ? userLocation!.latitude
+        : widget.mechanicLocation.latitude;
+    double east = userLocation!.longitude > widget.mechanicLocation.longitude
+        ? userLocation!.longitude
+        : widget.mechanicLocation.longitude;
+
+    final bounds = LatLngBounds(
+      southwest: LatLng(south, west),
+      northeast: LatLng(north, east),
     );
 
     _mapController!.animateCamera(
@@ -105,25 +112,26 @@ class _MechanicDetailsScreenState extends State<MechanicDetailsScreen> {
     );
   }
 
-  // 🚗 OPEN GOOGLE MAPS
-  Future<void> _openGoogleMaps() async {
+  Future<void> _openDirections() async {
     final url =
         "https://www.google.com/maps/dir/?api=1&destination=${widget.mechanicLocation.latitude},${widget.mechanicLocation.longitude}&travelmode=driving";
 
     final uri = Uri.parse(url);
 
     if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not open Google Maps')),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.name)),
       body: Stack(
         children: [
-          // 🔥 MAP ALWAYS SHOWS (NO WAIT)
           GoogleMap(
             initialCameraPosition: CameraPosition(
               target: userLocation ?? widget.mechanicLocation,
@@ -135,10 +143,14 @@ class _MechanicDetailsScreenState extends State<MechanicDetailsScreen> {
                 Marker(
                   markerId: const MarkerId("user"),
                   position: userLocation!,
+                  icon: BitmapDescriptor.defaultMarkerWithHue(
+                      BitmapDescriptor.hueBlue),
                 ),
               Marker(
                 markerId: const MarkerId("mechanic"),
                 position: widget.mechanicLocation,
+                icon: BitmapDescriptor.defaultMarkerWithHue(
+                    BitmapDescriptor.hueRed),
               ),
             },
             polylines: {
@@ -150,32 +162,158 @@ class _MechanicDetailsScreenState extends State<MechanicDetailsScreen> {
               )
             },
             myLocationEnabled: true,
-            myLocationButtonEnabled: true,
+            myLocationButtonEnabled: false,
           ),
-
-          // 🔥 LOADING (only small overlay now)
-          if (userLocation == null)
-            const Center(child: CircularProgressIndicator()),
-
-          // 🔘 BUTTONS
-          Positioned(
-            bottom: 20,
-            left: 20,
-            right: 20,
+          Container(
+            color: Colors.black.withOpacity(0.4),
+          ),
+          SafeArea(
             child: Column(
               children: [
-                ElevatedButton(
-                  onPressed: _openGoogleMaps,
-                  child: const Text("🚗 Start Navigation"),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back, color: Colors.white),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.favorite_border,
+                            color: Colors.white),
+                        onPressed: () {},
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text("Back"),
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 32),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Image.network(
+                          widget.photoUrl,
+                          height: 300,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              Container(
+                            color: Colors.grey[800],
+                            child: const Icon(Icons.person,
+                                size: 100, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30),
+                    ),
+                  ),
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            widget.name,
+                            style: const TextStyle(
+                                fontSize: 24, fontWeight: FontWeight.bold),
+                          ),
+                          if (widget.isVerified)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Colors.green,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Text(
+                                "Verified",
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 12),
+                              ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          const Icon(Icons.star, color: Colors.amber, size: 20),
+                          const SizedBox(width: 4),
+                          Text(
+                            "${widget.rating.toStringAsFixed(1)} (${widget.reviewsCount})",
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        widget.description,
+                        style: const TextStyle(fontSize: 16, height: 1.5),
+                      ),
+                      const SizedBox(height: 8),
+                      TextButton(
+                        onPressed: () {},
+                        child: const Text("Read More",
+                            style: TextStyle(color: Color(0xFF6A48FF))),
+                      ),
+                      const SizedBox(height: 32),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: _openDirections,
+                              icon: const Icon(Icons.directions_car),
+                              label: const Text("Directions"),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.grey[300],
+                                foregroundColor: Colors.black87,
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text("Booking coming soon")),
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF6A48FF),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
+                              ),
+                              child: const Text(
+                                "Book Now",
+                                style: TextStyle(
+                                    fontSize: 18, color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );
