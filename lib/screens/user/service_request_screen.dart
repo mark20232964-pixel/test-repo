@@ -24,7 +24,7 @@ class _ServiceRequestScreenState extends State<ServiceRequestScreen>
   LatLng? _providerLocation;
 
   String? _providerName;
-  String _eta = "";
+  String _eta = ""; // 🔥 NEW
 
   final Set<Marker> _markers = {};
   final Set<Polyline> _polylines = {};
@@ -42,6 +42,7 @@ class _ServiceRequestScreenState extends State<ServiceRequestScreen>
   late Animation<double> _animation;
 
   final String googleApiKey = "AIzaSyDC-Vg3GG5uDyDb5JuIzPKeKEIeUXwoXho";
+
   @override
   void initState() {
     super.initState();
@@ -64,7 +65,7 @@ class _ServiceRequestScreenState extends State<ServiceRequestScreen>
     super.dispose();
   }
 
-  // 📍 GET USER LOCATION
+  // GET USER LOCATION
   Future<void> _getUserLocation() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) return;
@@ -89,7 +90,7 @@ class _ServiceRequestScreenState extends State<ServiceRequestScreen>
     setState(() {});
   }
 
-  // 🧠 ETA CALCULATION
+  //  ETA CALCULATION
   void calculateETA() {
     if (_userLocation == null || _providerLocation == null) return;
 
@@ -112,7 +113,7 @@ class _ServiceRequestScreenState extends State<ServiceRequestScreen>
     });
   }
 
-  // 🗺 DRAW ROUTE
+  //  DRAW ROUTE
   Future<void> _drawRoute() async {
     if (_userLocation == null || _providerLocation == null) return;
 
@@ -146,7 +147,7 @@ class _ServiceRequestScreenState extends State<ServiceRequestScreen>
     }
   }
 
-  // 🔥 LIVE PROVIDER TRACKING
+  //  LIVE PROVIDER TRACKING
   void listenToProviderLocation(String requestId) {
     FirebaseFirestore.instance
         .collection('requests')
@@ -177,7 +178,7 @@ class _ServiceRequestScreenState extends State<ServiceRequestScreen>
     });
   }
 
-  // 🔥 LISTEN REQUEST
+  //  LISTEN REQUEST
   void listenToRequest(String requestId) {
     _requestListener = FirebaseFirestore.instance
         .collection('requests')
@@ -205,7 +206,7 @@ class _ServiceRequestScreenState extends State<ServiceRequestScreen>
     });
   }
 
-  // 🔧 FETCH PROVIDER
+  // FETCH PROVIDER
   Future<void> fetchProviderDetails(String providerId) async {
     final doc = await FirebaseFirestore.instance
         .collection('providers')
@@ -270,7 +271,7 @@ class _ServiceRequestScreenState extends State<ServiceRequestScreen>
     });
   }
 
-  // ❌ CANCEL
+  //  CANCEL
   Future<void> cancelRequest() async {
     if (_currentRequestId == null) return;
 
@@ -287,142 +288,142 @@ class _ServiceRequestScreenState extends State<ServiceRequestScreen>
       _requestAccepted = false;
     });
   }
-}
 
-// 🎨 UI
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    body: Stack(
-      children: [
-        Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.only(
-                top: 50,
-                left: 20,
-                right: 20,
-                bottom: 20,
-              ),
-              decoration: const BoxDecoration(
-                color: Color(0xFF1B1B4B),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(20),
-                  bottomRight: Radius.circular(20),
+  // 🎨 UI
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.only(
+                  top: 50,
+                  left: 20,
+                  right: 20,
+                  bottom: 20,
                 ),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: InputDecoration(
-                        hintText: "Search service",
-                        hintStyle: const TextStyle(color: Colors.white54),
-                        filled: true,
-                        fillColor: Colors.white12,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide.none,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF1B1B4B),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(20),
+                    bottomRight: Radius.circular(20),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _searchController,
+                        style: const TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          hintText: "Search service",
+                          hintStyle: const TextStyle(color: Colors.white54),
+                          filled: true,
+                          fillColor: Colors.white12,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(15),
+                            borderSide: BorderSide.none,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.search, color: Colors.white),
-                    onPressed: () {
-                      _searchService(_searchController.text);
-                    },
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: GoogleMap(
-                initialCameraPosition: CameraPosition(
-                  target: _userLocation != null
-                      ? LatLng(
-                          _userLocation!.latitude,
-                          _userLocation!.longitude,
-                        )
-                      : const LatLng(6.9271, 79.8612),
-                  zoom: 14,
+                    IconButton(
+                      icon: const Icon(Icons.search, color: Colors.white),
+                      onPressed: () {
+                        _searchService(_searchController.text);
+                      },
+                    ),
+                  ],
                 ),
-                onMapCreated: (controller) {
-                  _mapController = controller;
-                },
-                myLocationEnabled: true,
-                markers: _markers,
-                polylines: _polylines,
               ),
-            ),
-          ],
-        ),
-
-        // 🚀 SEARCHING PANEL
-        if (_isSearching)
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              margin: const EdgeInsets.all(12),
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(25),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const LinearProgressIndicator(color: Colors.deepPurple),
-                  const SizedBox(height: 15),
-                  const Text("Searching for nearby mechanic..."),
-                  const SizedBox(height: 15),
-                  ElevatedButton(
-                    onPressed: cancelRequest,
-                    child: const Text("Cancel Request"),
+              Expanded(
+                child: GoogleMap(
+                  initialCameraPosition: CameraPosition(
+                    target: _userLocation != null
+                        ? LatLng(
+                            _userLocation!.latitude,
+                            _userLocation!.longitude,
+                          )
+                        : const LatLng(6.9271, 79.8612),
+                    zoom: 14,
                   ),
-                ],
+                  onMapCreated: (controller) {
+                    _mapController = controller;
+                  },
+                  myLocationEnabled: true,
+                  markers: _markers,
+                  polylines: _polylines,
+                ),
               ),
-            ),
+            ],
           ),
 
-        // ✅ ACCEPTED PANEL
-        if (_requestAccepted)
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              margin: const EdgeInsets.all(12),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(25),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    _providerName ?? "Mechanic",
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+          //  SEARCHING PANEL
+          if (_isSearching)
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                margin: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(25),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const LinearProgressIndicator(color: Colors.deepPurple),
+                    const SizedBox(height: 15),
+                    const Text("Searching for nearby mechanic..."),
+                    const SizedBox(height: 15),
+                    ElevatedButton(
+                      onPressed: cancelRequest,
+                      child: const Text("Cancel Request"),
                     ),
-                  ),
-                  const SizedBox(height: 5),
-                  const Text("🚗 On the way"),
-                  const SizedBox(height: 5),
-                  Text(
-                    "ETA: $_eta",
-                    style: const TextStyle(
-                      color: Colors.deepPurple,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-      ],
-    ),
-  );
+
+          // ACCEPTED PANEL
+          if (_requestAccepted)
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                margin: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(25),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      _providerName ?? "Mechanic",
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    const Text("🚗 On the way"),
+                    const SizedBox(height: 5),
+                    Text(
+                      "ETA: $_eta",
+                      style: const TextStyle(
+                        color: Colors.deepPurple,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
 }
