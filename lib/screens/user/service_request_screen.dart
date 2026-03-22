@@ -339,7 +339,23 @@ Widget build(BuildContext context) {
               ),
             ),
             Expanded(
-              child: Container(),
+              child: GoogleMap(
+                initialCameraPosition: CameraPosition(
+                  target: _userLocation != null
+                      ? LatLng(
+                          _userLocation!.latitude,
+                          _userLocation!.longitude,
+                        )
+                      : const LatLng(6.9271, 79.8612),
+                  zoom: 14,
+                ),
+                onMapCreated: (controller) {
+                  _mapController = controller;
+                },
+                myLocationEnabled: true,
+                markers: _markers,
+                polylines: _polylines,
+              ),
             ),
           ],
         ),
