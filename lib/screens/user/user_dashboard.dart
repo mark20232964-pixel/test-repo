@@ -2,9 +2,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
+
 import 'user_profile_screen.dart';
 import 'service_request_screen.dart';
-import 'mechanics_near_you.dart'; // ← ADD THIS IMPORT
+import 'mechanics_near_you.dart';
 
 class UserDashboard extends StatefulWidget {
   const UserDashboard({super.key});
@@ -15,16 +17,63 @@ class UserDashboard extends StatefulWidget {
 
 class _UserDashboardState extends State<UserDashboard> {
   int _selectedIndex = 0;
-
   final TextEditingController searchController = TextEditingController();
 
-  // For current location (we'll fetch it when tapping "Book a Mechanic")
   Position? currentPosition;
   bool _isGettingLocation = false;
 
+  String userLocation = "Getting location...";
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserLocation();
+  }
+
+  // 🔥 FETCH USER LOCATION NAME
+  Future<void> _loadUserLocation() async {
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        setState(() => userLocation = "Location disabled");
+        return;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          setState(() => userLocation = "Permission denied");
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        setState(() => userLocation = "Permission blocked");
+        return;
+      }
+
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+
+      Placemark place = placemarks.first;
+
+      setState(() {
+        userLocation = "${place.locality ?? ''}, ${place.country ?? ''}";
+      });
+    } catch (e) {
+      setState(() => userLocation = "Location error");
+    }
+  }
+
   void goToSearch() {
     String query = searchController.text.trim();
-
     if (query.isEmpty) return;
 
     Navigator.push(
@@ -35,48 +84,11 @@ class _UserDashboardState extends State<UserDashboard> {
     );
   }
 
-  // Fetch current location when tapping "Book a Mechanic"
   Future<void> _getLocationAndOpenMechanics() async {
     setState(() => _isGettingLocation = true);
 
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enable location services')),
-      );
-      setState(() => _isGettingLocation = false);
-      return;
-    }
-
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Location permission denied')),
-        );
-        setState(() => _isGettingLocation = false);
-        return;
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Location permission permanently denied')),
-      );
-      setState(() => _isGettingLocation = false);
-      return;
-    }
-
     try {
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-
-      setState(() {
-        currentPosition = position;
-      });
-
+      Position position = await Geolocator.getCurrentPosition();
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -85,9 +97,7 @@ class _UserDashboardState extends State<UserDashboard> {
         ),
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to get location: $e')),
-      );
+      print(e);
     } finally {
       setState(() => _isGettingLocation = false);
     }
@@ -96,115 +106,126 @@ class _UserDashboardState extends State<UserDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF5F5F5),
       body: Column(
         children: [
-          // Merged header with search
+          // 🔥 HEADER
           Container(
-            padding: const EdgeInsets.only(
-              top: 50,
-              left: 20,
-              right: 20,
-              bottom: 30,
-            ),
+            padding:
+                const EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 25),
             decoration: const BoxDecoration(
-              color: Color(0xFF1B1B4B),
+              gradient: LinearGradient(
+                colors: [Color(0xFF2C2A6A), Color(0xFF4A3FA7)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
               borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(20),
-                bottomRight: Radius.circular(20),
+                bottomLeft: Radius.circular(25),
+                bottomRight: Radius.circular(25),
               ),
             ),
             child: Column(
               children: [
-                const Row(
+                // Location row
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        const Text(
                           "Location",
-                          style: TextStyle(color: Colors.white54, fontSize: 12),
+                          style: TextStyle(color: Colors.white60, fontSize: 12),
                         ),
+                        const SizedBox(height: 2),
                         Text(
-                          "Bilzen, Tanjungbalai",
-                          style: TextStyle(
+                          userLocation,
+                          style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                       ],
                     ),
-                    Icon(Icons.error, color: Colors.red, size: 30),
+                    const CircleAvatar(
+                      backgroundColor: Colors.red,
+                      radius: 12,
+                      child: Icon(Icons.notifications,
+                          color: Colors.white, size: 14),
+                    )
                   ],
                 ),
+
                 const SizedBox(height: 20),
+
+                // 🔍 Search bar
                 Row(
                   children: [
                     Expanded(
-                      child: TextField(
-                        controller: searchController,
-                        onSubmitted: (value) => goToSearch(),
-                        style: const TextStyle(color: Colors.white),
-                        decoration: InputDecoration(
-                          hintText: "Search Service",
-                          hintStyle: const TextStyle(color: Colors.white54),
-                          prefixIcon:
-                              const Icon(Icons.search, color: Colors.white),
-                          filled: true,
-                          fillColor: Colors.white12,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15),
-                            borderSide: BorderSide.none,
+                      child: Container(
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: Colors.black26,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: TextField(
+                          controller: searchController,
+                          onSubmitted: (_) => goToSearch(),
+                          style: const TextStyle(color: Colors.white),
+                          decoration: const InputDecoration(
+                            hintText: "Search Service",
+                            hintStyle: TextStyle(color: Colors.white60),
+                            prefixIcon: Icon(Icons.search, color: Colors.white),
+                            border: InputBorder.none,
                           ),
                         ),
                       ),
                     ),
                     const SizedBox(width: 10),
+
+                    // filter button
                     GestureDetector(
                       onTap: goToSearch,
                       child: Container(
-                        padding: const EdgeInsets.all(12),
+                        height: 50,
+                        width: 50,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF6A48FF),
-                          borderRadius: BorderRadius.circular(15),
+                          color: Colors.black26,
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Icon(Icons.search, color: Colors.white),
+                        child: const Icon(Icons.tune, color: Colors.white),
                       ),
-                    ),
+                    )
                   ],
                 ),
               ],
             ),
           ),
 
-          // Body with tiles
+          // 🔥 BODY
           Expanded(
             child: ListView(
               padding: const EdgeInsets.all(20),
               children: [
-                // Book a Mechanic tile - NOW CLICKABLE
-                GestureDetector(
+                _buildCard(
+                  "Book a\nMechanic",
+                  "assets/images/mechanic.jpg",
                   onTap:
                       _isGettingLocation ? null : _getLocationAndOpenMechanics,
-                  child: _buildOptionCard(
-                    "Book a\nMechanic",
-                    'assets/images/mechanic.jpg',
-                  ),
                 ),
-                const SizedBox(height: 15),
-
-                _buildOptionCard(
+                const SizedBox(height: 20),
+                _buildCard(
                   "Book a\nGarage",
-                  'assets/images/garage.jpg',
+                  "assets/images/garage.jpg",
                 ),
               ],
             ),
           ),
         ],
       ),
+
+      // 🔥 BOTTOM NAV
       bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.white,
         selectedItemColor: Colors.black,
         unselectedItemColor: Colors.grey,
@@ -212,9 +233,7 @@ class _UserDashboardState extends State<UserDashboard> {
         showUnselectedLabels: false,
         currentIndex: _selectedIndex,
         onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
+          setState(() => _selectedIndex = index);
 
           if (index == 3) {
             Navigator.push(
@@ -223,44 +242,53 @@ class _UserDashboardState extends State<UserDashboard> {
                 builder: (context) => const UserProfileScreen(),
               ),
             );
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Tapped nav item $index')),
-            );
           }
         },
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.favorite_border), label: ''),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: ""),
+          BottomNavigationBarItem(icon: Icon(Icons.favorite_border), label: ""),
           BottomNavigationBarItem(
-              icon: Icon(Icons.shopping_bag_outlined), label: ''),
+              icon: Icon(Icons.shopping_bag_outlined), label: ""),
           BottomNavigationBarItem(
             icon: CircleAvatar(
               radius: 12,
               backgroundImage: NetworkImage('https://via.placeholder.com/150'),
             ),
-            label: '',
+            label: "",
           ),
         ],
       ),
     );
   }
 
-  Widget _buildOptionCard(String title, String imagePath) {
-    return Container(
-      height: 160,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(25),
-        image: DecorationImage(image: AssetImage(imagePath), fit: BoxFit.cover),
-      ),
-      padding: const EdgeInsets.all(25),
-      alignment: Alignment.centerLeft,
-      child: Text(
-        title,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 26,
-          fontWeight: FontWeight.bold,
+  // 🔥 CARD UI
+  Widget _buildCard(String title, String image, {VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 150,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          image: DecorationImage(
+            image: AssetImage(image),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: Colors.black.withOpacity(0.35),
+          ),
+          padding: const EdgeInsets.all(20),
+          alignment: Alignment.centerLeft,
+          child: Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
       ),
     );

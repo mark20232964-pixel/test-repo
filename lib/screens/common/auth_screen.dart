@@ -18,6 +18,7 @@ class AuthScreen extends StatefulWidget {
 
 class _AuthScreenState extends State<AuthScreen> {
   bool _isLoginMode = true;
+
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -93,24 +94,13 @@ class _AuthScreenState extends State<AuthScreen> {
           (route) => false,
         );
       }
-    }
-
-    // 🔥 IMPORTANT PART (REAL ERROR SHOW)
-    on FirebaseAuthException catch (e) {
-      print("🔥 AUTH ERROR CODE: ${e.code}");
-      print("🔥 AUTH ERROR MESSAGE: ${e.message}");
-
+    } on FirebaseAuthException catch (e) {
       setState(() {
-        _errorMessage = "Error: ${e.code}\n${e.message}";
+        _errorMessage = "${e.message}";
       });
-    }
-
-    // 🔥 GENERAL ERROR
-    catch (e) {
-      print("🔥 GENERAL ERROR: $e");
-
+    } catch (e) {
       setState(() {
-        _errorMessage = "Error: $e";
+        _errorMessage = "$e";
       });
     } finally {
       setState(() => _isLoading = false);
@@ -120,96 +110,188 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0D1117),
-      appBar: AppBar(
-        title: Text(widget.role == 'provider' ? 'Service Provider' : 'Driver'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
+      backgroundColor: Colors.white,
+      body: Column(
+        children: [
+          // 🔥 CURVED HEADER WITH LOGO
+          SizedBox(
+            height: 260,
+            width: double.infinity,
+            child: Stack(
               children: [
-                Text(
-                  _isLoginMode ? 'Login' : 'Sign Up',
-                  style: const TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                ClipPath(
+                  clipper: WaveClipper(),
+                  child: Container(
+                    height: 260,
+                    color: const Color(0xFF1B1464),
                   ),
                 ),
-                const SizedBox(height: 30),
-                if (!_isLoginMode)
-                  TextFormField(
-                    controller: _nameController,
-                    decoration: _input("Full Name"),
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _emailController,
-                  decoration: _input("Email"),
-                  style: const TextStyle(color: Colors.white),
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _passwordController,
-                  obscureText: true,
-                  decoration: _input("Password"),
-                  style: const TextStyle(color: Colors.white),
-                ),
-                if (!_isLoginMode) ...[
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _confirmPasswordController,
-                    obscureText: true,
-                    decoration: _input("Confirm Password"),
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                ],
-                if (_errorMessage != null) ...[
-                  const SizedBox(height: 20),
-                  Text(_errorMessage!,
-                      style: const TextStyle(color: Colors.red)),
-                ],
-                const SizedBox(height: 30),
-                _isLoading
-                    ? const CircularProgressIndicator()
-                    : ElevatedButton(
-                        onPressed: _authenticate,
-                        child: Text(_isLoginMode ? "Login" : "Sign Up"),
+
+                // 🖼 LOGO (TOP RIGHT)
+                Positioned(
+                  top: 50,
+                  right: 20,
+                  child: Container(
+                    width: 80, // 🔥 bigger
+                    height: 80,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 8,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: ClipOval(
+                      child: Image.asset(
+                        'assets/images/logo.jpeg',
+                        fit: BoxFit.cover, // 🔥 THIS removes white gaps
+                        width: double.infinity,
+                        height: double.infinity,
                       ),
-                TextButton(
-                  onPressed: () {
-                    setState(() {
-                      _isLoginMode = !_isLoginMode;
-                      _errorMessage = null;
-                    });
-                  },
-                  child: Text(
-                    _isLoginMode ? "Create account" : "Already have account?",
+                    ),
                   ),
-                )
+                ),
               ],
             ),
           ),
-        ),
+
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 10),
+                    Text(
+                      _isLoginMode ? "Sign in" : "Sign up",
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Container(
+                      width: 40,
+                      height: 3,
+                      color: Colors.orange,
+                    ),
+                    const SizedBox(height: 30),
+                    if (!_isLoginMode)
+                      _buildInput(_nameController, "Full Name"),
+                    if (!_isLoginMode) const SizedBox(height: 20),
+                    _buildInput(_emailController, "Email"),
+                    const SizedBox(height: 20),
+                    _buildInput(_passwordController, "Password",
+                        isPassword: true),
+                    if (!_isLoginMode) ...[
+                      const SizedBox(height: 20),
+                      _buildInput(
+                          _confirmPasswordController, "Confirm Password",
+                          isPassword: true),
+                    ],
+                    if (_errorMessage != null) ...[
+                      const SizedBox(height: 20),
+                      Text(_errorMessage!,
+                          style: const TextStyle(color: Colors.red)),
+                    ],
+                    const SizedBox(height: 30),
+                    _isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : SizedBox(
+                            width: double.infinity,
+                            height: 55,
+                            child: ElevatedButton(
+                              onPressed: _authenticate,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF1B1464),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: Text(
+                                _isLoginMode ? "Login" : "Create Account",
+                              ),
+                            ),
+                          ),
+                    const SizedBox(height: 20),
+                    Center(
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _isLoginMode = !_isLoginMode;
+                            _errorMessage = null;
+                          });
+                        },
+                        child: Text(
+                          _isLoginMode
+                              ? "Don't have an account? Sign up"
+                              : "Already have an account? Login",
+                          style: const TextStyle(color: Colors.black54),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 40),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  InputDecoration _input(String label) {
-    return InputDecoration(
-      labelText: label,
-      filled: true,
-      fillColor: Colors.white.withOpacity(0.1),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide.none,
+  Widget _buildInput(TextEditingController controller, String label,
+      {bool isPassword = false}) {
+    return TextFormField(
+      controller: controller,
+      obscureText: isPassword,
+      decoration: InputDecoration(
+        labelText: label,
+        enabledBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.black26),
+        ),
+        focusedBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF1B1464)),
+        ),
       ),
     );
   }
+}
+
+// 🌊 CUSTOM WAVE CLIPPER (THIS IS THE MAGIC)
+class WaveClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    var path = Path();
+
+    path.lineTo(0, size.height - 60);
+
+    path.quadraticBezierTo(
+      size.width * 0.25,
+      size.height,
+      size.width * 0.5,
+      size.height - 40,
+    );
+
+    path.quadraticBezierTo(
+      size.width * 0.75,
+      size.height - 80,
+      size.width,
+      size.height - 50,
+    );
+
+    path.lineTo(size.width, 0);
+    path.close();
+
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }
