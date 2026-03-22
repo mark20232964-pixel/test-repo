@@ -60,7 +60,39 @@ class _VehicleVerificationFormScreenState extends State<VehicleVerificationFormS
         ),
         const SizedBox(height: 32),
         // Form fields will be added in next commits
-        const Text('Form fields coming soon', style: TextStyle(fontSize: 20)),
+        _buildField("Vehicle Model", _modelController, "e.g. Civic"),
+const SizedBox(height: 24),
+_buildField("Number Plate", _plateController, "e.g. KS 5241"),
+const SizedBox(height: 24),
+_buildField("Color", _colorController, "e.g. Red"),
+const SizedBox(height: 48),
+SizedBox(
+  width: double.infinity,
+  height: 50,
+  child: ElevatedButton(
+    onPressed: () {
+      // TODO: Implement save logic in next commit
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Verify button tapped - coming soon')),
+      );
+    },
+    style: ElevatedButton.styleFrom(
+      backgroundColor: const Color(0xFF1B1B4B),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(30),
+      ),
+    ),
+    child: const Text(
+      "Verify",
+      style: TextStyle(
+        fontSize: 18,
+        color: Colors.white,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+  ),
+),
+const SizedBox(height: 20),
       ],
     ),
   ),
