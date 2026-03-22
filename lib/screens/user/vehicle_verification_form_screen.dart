@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'user_profile_screen.dart'; 
 
 class VehicleVerificationFormScreen extends StatefulWidget {
   final String brandName;
@@ -25,6 +28,53 @@ class _VehicleVerificationFormScreenState extends State<VehicleVerificationFormS
     _plateController.dispose();
     _colorController.dispose();
     super.dispose();
+  }
+
+    Future<void> _saveVehicle() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+
+      // Basic validation
+      if (_modelController.text.trim().isEmpty ||
+          _plateController.text.trim().isEmpty ||
+          _colorController.text.trim().isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Please fill all fields")),
+        );
+        return;
+      }
+
+      final vehicleData = {
+        "brand": widget.brandName,
+        "model": _modelController.text.trim(),
+        "plate": _plateController.text.trim(),
+        "color": _colorController.text.trim(),
+        "userId": user?.uid,
+        "createdAt": Timestamp.now(),
+      };
+
+      // Save to Firestore
+      await FirebaseFirestore.instance
+          .collection("vehicles")
+          .add(vehicleData);
+
+      // Success
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Vehicle Verified & Saved! ✅")),
+      );
+
+      // Navigate to User Profile
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const UserProfileScreen(),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
+    }
   }
 
   @override
@@ -70,12 +120,7 @@ SizedBox(
   width: double.infinity,
   height: 50,
   child: ElevatedButton(
-    onPressed: () {
-      // TODO: Implement save logic in next commit
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Verify button tapped - coming soon')),
-      );
-    },
+    onPressed: _saveVehicle,
     style: ElevatedButton.styleFrom(
       backgroundColor: const Color(0xFF1B1B4B),
       shape: RoundedRectangleBorder(
