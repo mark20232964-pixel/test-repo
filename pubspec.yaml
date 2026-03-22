@@ -53,6 +53,8 @@ flutter:
     - assets/images/calendar.jpg
     - assets/images/service.jpg
     - assets/images/logo.jpeg
+    - assets/images/welcome_hero.png
+    - assets/images/pattern.jpg
 
   # If you add more assets later (fonts, other images, etc.), add them here
   # fonts:
