@@ -19,6 +19,15 @@ class ProviderRequestDetailsScreen extends StatelessWidget {
     Navigator.pop(context);
   }
 
+  Future<void> cancelService(BuildContext context) async {
+    await FirebaseFirestore.instance
+        .collection('requests')
+        .doc(requestId)
+        .update({'status': 'cancelled'});
+
+    Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
