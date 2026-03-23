@@ -135,6 +135,28 @@ class _VerifiedVehicleScreenState extends State<VerifiedVehicleScreen> {
                     ],
                   ),
                 ),
+                bottomNavigationBar: BottomNavigationBar(
+  type: BottomNavigationBarType.fixed,
+  backgroundColor: Colors.white,
+  selectedItemColor: const Color(0xFF6A48FF),
+  unselectedItemColor: const Color.fromARGB(255, 0, 0, 0),
+  showSelectedLabels: false,
+  showUnselectedLabels: false,
+  currentIndex: 3, // Profile selected (index 3 = avatar)
+  items: const [
+    BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: ""),
+    BottomNavigationBarItem(icon: Icon(Icons.favorite_border), label: ""),
+    BottomNavigationBarItem(icon: Icon(Icons.shopping_bag_outlined), label: ""),
+    BottomNavigationBarItem(
+      icon: CircleAvatar(
+        radius: 16,
+        backgroundColor: Color(0xFF6A48FF),
+        child: Icon(Icons.person, color: Colors.white, size: 20),
+      ),
+      label: "",
+    ),
+  ],
+),
     );
   }
 
