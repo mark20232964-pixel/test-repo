@@ -1,12 +1,15 @@
 // lib/screens/user/mechanic_details.dart
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:roadresq/screens/user/schedule_mechanic.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MechanicDetailsScreen extends StatefulWidget {
+  final String providerId;
   final String name;
   final LatLng mechanicLocation;
   final double rating;
@@ -18,6 +21,7 @@ class MechanicDetailsScreen extends StatefulWidget {
 
   const MechanicDetailsScreen({
     super.key,
+    required this.providerId,
     required this.name,
     required this.mechanicLocation,
     required this.rating,
@@ -289,10 +293,21 @@ class _MechanicDetailsScreenState extends State<MechanicDetailsScreen> {
                           Expanded(
                             child: ElevatedButton(
                               onPressed: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content: Text("Booking coming soon")),
-                                );
+                                Map<String, dynamic> schedule = {
+                                  'providerId': widget.providerId,
+                                  'name': widget.name,
+                                  'location': GeoPoint(widget.mechanicLocation.latitude, widget.mechanicLocation.longitude),
+                                  'rating': widget.rating,
+                                  'reviewsCount': widget.reviewsCount,
+                                  'description': widget.description,
+                                  'isVerified': widget.isVerified,
+                                  'joinedCount': widget.joinedCount,
+                                  'photoUrl': widget.photoUrl,
+                                  'userLocation': GeoPoint(userLocation!.latitude, userLocation!.longitude)
+                                };
+
+                                Navigator.push(context,
+                                MaterialPageRoute(builder: (context)=>ScheduleMechanicScreen(schedule: schedule)));
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF6A48FF),

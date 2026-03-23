@@ -77,6 +77,7 @@ class MechanicsNearYouScreen extends StatelessWidget {
               final loc = data["location"] as GeoPoint;
               final dist = _distance(loc);
 
+              final id = data["ownerUid"];
               final name = data["name"] as String? ?? "Unnamed Mechanic";
               final rating = (data["rating"] as num?)?.toDouble() ?? 4.5;
               final reviewsCount = data["reviewsCount"] as int? ?? 230;
@@ -91,6 +92,7 @@ class MechanicsNearYouScreen extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => MechanicDetailsScreen(
+                        providerId: id,
                         name: name,
                         mechanicLocation: LatLng(loc.latitude, loc.longitude),
                         rating: rating,
