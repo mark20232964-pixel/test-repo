@@ -135,7 +135,9 @@ SizedBox(
   width: double.infinity,
   height: 50,
   child: ElevatedButton(
-    onPressed: _isLoading ? null : _saveVehicle,
+    onPressed: _isLoading || _modelController.text.trim().isEmpty || _plateController.text.trim().isEmpty || _colorController.text.trim().isEmpty
+    ? null
+    : _saveVehicle,
     style: ElevatedButton.styleFrom(
       backgroundColor: const Color(0xFF1B1B4B),
       shape: RoundedRectangleBorder(
@@ -184,30 +186,33 @@ Widget _buildField(String label, TextEditingController controller, String hint, 
       ),
       const SizedBox(height: 8),
       TextField(
-        controller: controller,
-        textInputAction: TextInputAction.next, // for keyboard Next
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: const TextStyle(color: Colors.grey),
-          prefixIcon: Icon(icon, color: Colors.grey),
-          focusedBorder: const UnderlineInputBorder(
-            borderSide: BorderSide(color: Color(0xFF6A48FF), width: 2),
-          ),
-          enabledBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: isEmpty ? Colors.red : Colors.grey),
-          ),
-          errorBorder: const UnderlineInputBorder(
-            borderSide: BorderSide(color: Colors.red, width: 2),
-          ),
-          errorText: isEmpty ? 'This field is required' : null,
-          errorStyle: const TextStyle(color: Colors.red),
-        ),
-        onChanged: (value) {
-          if (value.trim().isNotEmpty) {
-            setState(() {});
-          }
-        },
-      ),
+  controller: controller,
+  textInputAction: TextInputAction.next,
+  keyboardType: TextInputType.text, // default for all
+  textCapitalization: TextCapitalization.words, // capitalize first letter
+  
+  decoration: InputDecoration(
+    hintText: hint,
+    hintStyle: const TextStyle(color: Colors.grey),
+    prefixIcon: Icon(icon, color: Colors.grey),
+    filled: true,
+    fillColor: controller.text.isNotEmpty ? Colors.grey[50] : null,
+    focusedBorder: const UnderlineInputBorder(
+      borderSide: BorderSide(color: Color(0xFF6A48FF), width: 2),
+    ),
+    enabledBorder: UnderlineInputBorder(
+      borderSide: BorderSide(color: isEmpty ? Colors.red : Colors.grey),
+    ),
+    errorBorder: const UnderlineInputBorder(
+      borderSide: BorderSide(color: Colors.red, width: 2),
+    ),
+    errorText: isEmpty ? 'This field is required' : null,
+    errorStyle: const TextStyle(color: Colors.red),
+  ),
+  onChanged: (value) {
+    setState(() {}); // Rebuild to update fillColor + clear red
+  },
+),
       const SizedBox(height: 16),
     ],
   );
