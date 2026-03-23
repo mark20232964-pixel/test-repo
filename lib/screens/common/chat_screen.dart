@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:roadresq/repositories/chat_message_repository.dart';
 import 'package:roadresq/repositories/chat_repository.dart';
+import 'package:roadresq/repositories/user_repository.dart';
 
 class ChatScreen extends StatefulWidget {
   final Map<String, dynamic> schedule;
@@ -40,6 +41,42 @@ class _ChatScreenState extends State<ChatScreen> {
     final userId = widget.schedule['userId'] as String? ?? '';
     final providerId = widget.schedule['providerId'] as String? ?? '';
     _otherUserId = _currentUserId == providerId ? userId : providerId;
+
+    _initChat();
+  }
+
+  Future<void> _initChat() async {
+    try {
+      final userId = widget.schedule['userId'] as String? ?? '';
+      final providerId = widget.schedule['providerId'] as String? ?? '';
+
+      final results = await Future.wait([
+        _chatRepository.getOrCreateChat(
+          userId: userId,
+          providerId: providerId,
+          requestId: _requestId,
+        ),
+        UserRepository().getUser(_otherUserId),
+      ]);
+
+      final chat = results[0] as Map<String, dynamic>;
+      final otherUser = results[1];
+
+      if (mounted) {
+        setState(() {
+          _chatId = chat['id'] as String? ?? '';
+          _otherPartyName = otherUser?['name'] as String? ?? 'User';
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isInitializing = false);
+    }
   }
 
   @override
