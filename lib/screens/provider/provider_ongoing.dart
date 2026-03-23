@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:roadresq/screens/provider/provider_chat_screen.dart';
+import 'package:roadresq/screens/common/chat_screen.dart';
 import 'provider_request_details.dart';
 
 class ProviderOngoingScreen extends StatefulWidget {
@@ -235,7 +235,7 @@ class _ProviderOngoingScreenState extends State<ProviderOngoingScreen> {
                                       Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                      builder: (context) => const ChatScreen(),
+                                        builder: (context) =>  ChatScreen(schedule: data),
                                       ),
                                       );
                                       },

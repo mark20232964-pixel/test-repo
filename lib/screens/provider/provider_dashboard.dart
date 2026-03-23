@@ -31,7 +31,7 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
   // 🔥 REAL-TIME REQUEST LISTENER
   void listenForRequests() async {
     _providerId = await AuthService().currentUser?.uid;
-
+    print(_providerId);
     FirebaseFirestore.instance
         .collection('requests')
         .where('providerId', isEqualTo: _providerId)
