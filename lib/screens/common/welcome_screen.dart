@@ -1,9 +1,5 @@
-// WelcomeScreen - Onboarding entry point
-// Shows app branding, call-to-action buttons, and language options
-
 import 'package:flutter/material.dart';
 import 'package:roadresq/screens/common/role_selection_screen.dart';
-import 'role_selection_screen.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -11,121 +7,141 @@ class WelcomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0D1117),
-      body: SafeArea(
-        // ← added for better edge handling on devices
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 32.0,
-          ), // ← side padding
-          child: Column(
-            mainAxisAlignment:
-                MainAxisAlignment.end, // ← content pushed to bottom
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Text(
-                "Stranded? We\nBring the Help to You!",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 36,
-                  fontWeight: FontWeight.bold,
-                  height: 1.15, // ← better line spacing
+      backgroundColor: Colors.black, // Bottom part is solid black
+      body: Column(
+        children: [
+          // 1. Top Image Part (Takes up roughly 55-60% of the screen)
+          Expanded(
+            flex: 6,
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: Image.asset(
+                    'assets/images/welcome_hero.png',
+                    fit: BoxFit.cover,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                "Welcome to your roadside rescue corner,\nwhere every journey becomes safe again.",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 16,
-                  height: 1.4,
-                ),
-              ),
-              const SizedBox(height: 48), // ← tighter spacing after subtitle
-
-              const SizedBox(height: 40), // space before button
-
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const RoleSelectionScreen(),
+                // The specific white/grey gradient fade at the bottom of the image
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
+                    height: 100,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.transparent,
+                          Colors.white.withOpacity(0.2),
+                          Colors.black.withOpacity(0.8),
+                          Colors.black,
+                        ],
                       ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF6A48FF),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                  child: const Text(
-                    "Get Started",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
                     ),
                   ),
                 ),
-              ),
+              ],
+            ),
+          ),
 
-              const SizedBox(
-                height: 24,
-              ), // space after button (for next elements later)
-
-              OutlinedButton(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Skipped to demo / test mode'),
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
-                },
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  side: const BorderSide(color: Colors.white70),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-                child: const Text("Skip for Demo / Test Mode"),
-              ),
-
-              const SizedBox(
-                height: 32,
-              ), // slightly less space after Skip button
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+          // 2. Bottom Content Part (Solid Black background)
+          Expanded(
+            flex: 5,
+            child: Container(
+              color: Colors.black,
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   const Text(
-                    'ENGLISH',
+                    "Stranded? We\nBring the Help to\nYou!",
+                    textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.white,
+                      fontSize: 32,
                       fontWeight: FontWeight.bold,
+                      height: 1.2,
                     ),
                   ),
-                  const SizedBox(width: 24),
-                  const Text('සිංහල', style: TextStyle(color: Colors.white60)),
-                  const SizedBox(width: 24),
-                  const Text('தமிழ்', style: TextStyle(color: Colors.white60)),
+                  const SizedBox(height: 20),
+                  const Text(
+                    "Welcome to your roadside rescue corner,\nwhere every journey becomes safe again.",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 14,
+                      height: 1.4,
+                    ),
+                  ),
+                  const Spacer(),
+
+                  // Get Started Button
+                  SizedBox(
+                    width: double.infinity,
+                    height: 60,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  const RoleSelectionScreen()),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            const Color(0xFF0D0B4A), // Exact Navy from pic
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        "Get Started",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 25),
+
+                  // Language Pills
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _langPill("ENGLISH", true),
+                      const SizedBox(width: 10),
+                      _langPill(
+                          "தமிழ்", true), // Middle one is also dark in your pic
+                      const SizedBox(width: 10),
+                      const Text("සිංහල",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                  const SizedBox(height: 40),
                 ],
               ),
-
-              const SizedBox(
-                height: 80,
-              ), // more breathing room at the very bottom
-            ],
+            ),
           ),
-        ),
+        ],
+      ),
+    );
+  }
+
+  Widget _langPill(String label, bool isDark) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 12),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0D0B4A) : Colors.transparent,
+        borderRadius: BorderRadius.circular(25),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+            color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
       ),
     );
   }
