@@ -32,64 +32,62 @@ class _VehicleVerificationFormScreenState extends State<VehicleVerificationFormS
     super.dispose();
   }
 
-      Future<void> _saveVehicle() async {
-    if (_isLoading) return;
+  Future<void> _saveVehicle() async {
+  if (_isLoading) return;
 
-    setState(() {
-      _isLoading = true;
-    });
+  setState(() {
+    _isLoading = true;
+  });
 
-    try {
-      final user = FirebaseAuth.instance.currentUser;
+  try {
+    final user = FirebaseAuth.instance.currentUser;
 
-      // Basic validation
-      if (_modelController.text.trim().isEmpty ||
-          _plateController.text.trim().isEmpty ||
-          _colorController.text.trim().isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Please fill all fields")),
-        );
-        return;
-      }
-
-      final vehicleData = {
-        "brand": widget.brandName,
-        "model": _modelController.text.trim(),
-        "plate": _plateController.text.trim(),
-        "color": _colorController.text.trim(),
-        "userId": user?.uid,
-        "createdAt": Timestamp.now(),
-      };
-
-      // Save to Firestore
-      await FirebaseFirestore.instance.collection("vehicles").add(vehicleData);
-
-      // Success message
+    if (_modelController.text.trim().isEmpty ||
+        _plateController.text.trim().isEmpty ||
+        _colorController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Vehicle Verified & Saved! ✅")),
+        const SnackBar(content: Text("Please fill all fields")),
       );
-
-      // CHANGED: Clear all fields after success
-      _modelController.clear();
-      _plateController.clear();
-      _colorController.clear();
-
-      // CHANGED: Small delay + navigate to profile (gives user time to see success message)
-      await Future.delayed(const Duration(seconds: 1));
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const UserProfileScreen()),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error saving vehicle: $e")),
-      );
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      return;
     }
+
+    final vehicleData = {
+      "brand": widget.brandName,
+      "model": _modelController.text.trim(),
+      "plate": _plateController.text.trim(),
+      "color": _colorController.text.trim(),
+      "userId": user?.uid,
+      "createdAt": Timestamp.now(),
+    };
+
+    await FirebaseFirestore.instance.collection("vehicles").add(vehicleData);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Vehicle Verified & Saved! ✅")),
+    );
+
+    // Clear fields
+    _modelController.clear();
+    _plateController.clear();
+    _colorController.clear();
+
+    // Small delay to show success message
+    await Future.delayed(const Duration(seconds: 1));
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const UserProfileScreen()),
+    );
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Error saving vehicle: $e")),
+    );
+  } finally {
+    setState(() {
+      _isLoading = false;
+    });
   }
+}
 
 
   @override
