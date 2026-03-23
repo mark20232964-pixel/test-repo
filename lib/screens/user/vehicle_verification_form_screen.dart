@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'user_profile_screen.dart'; 
+import 'package:flutter/services.dart';  
 
 class VehicleVerificationFormScreen extends StatefulWidget {
   final String brandName;
@@ -183,12 +184,15 @@ Widget _buildField(String label, TextEditingController controller, String hint, 
         ),
       ),
       const SizedBox(height: 8),
-      TextField(
+TextField(
   controller: controller,
   textInputAction: TextInputAction.next,
-  keyboardType: TextInputType.text, // default for all
-  textCapitalization: TextCapitalization.words, // capitalize first letter
-  
+  keyboardType: TextInputType.text,
+  textCapitalization: TextCapitalization.words,
+  // CHANGED: removed UpperCaseTextFormatter — no auto-uppercase anymore
+  inputFormatters: label == "Number Plate"
+      ? [FilteringTextInputFormatter.allow(RegExp(r'[A-Z0-9 ]'))]  // only allow uppercase letters, numbers, spaces
+      : null,
   decoration: InputDecoration(
     hintText: hint,
     hintStyle: const TextStyle(color: Colors.grey),
@@ -208,7 +212,7 @@ Widget _buildField(String label, TextEditingController controller, String hint, 
     errorStyle: const TextStyle(color: Colors.red),
   ),
   onChanged: (value) {
-    setState(() {}); // Rebuild to update fillColor + clear red
+    setState(() {}); // Update fill color + clear red
   },
 ),
       const SizedBox(height: 16),
