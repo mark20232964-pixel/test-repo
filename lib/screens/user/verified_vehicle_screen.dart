@@ -74,68 +74,119 @@ class _VerifiedVehicleScreenState extends State<VerifiedVehicleScreen> {
         centerTitle: true,
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : vehicleData == null
-              ? const Center(child: Text("No vehicle found"))
-              : Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 10),
-
-                      // 🔥 LOGO + BRAND
-                      Column(
-                        children: [
-                          const Icon(Icons.directions_car, size: 80),
-                          Text(
-                            vehicleData!["brand"] ?? "Unknown Brand",
-                            style: const TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.red,
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      // 🔥 CARD with details
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            buildRow("Vehicle Model", vehicleData!["model"] ?? "N/A"),
-                            const SizedBox(height: 20),
-                            buildRow("Number Plate", vehicleData!["plate"] ?? "N/A"),
-                            const SizedBox(height: 20),
-                            buildRow("Color", vehicleData!["color"] ?? "N/A"),
-                            const SizedBox(height: 30),
-
-                            Align(
-                              alignment: Alignment.bottomRight,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  // TODO: Implement edit vehicle details later
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Edit feature coming soon')),
-                                  );
-                                },
-                                child: const Text("Edit"),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+    ? const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(
+              strokeWidth: 3,
+              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF6A48FF)),
+            ),
+            SizedBox(height: 16),
+            Text(
+              'Loading vehicle information...',
+              style: TextStyle(fontSize: 16, color: Colors.grey),
+            ),
+          ],
+        ),
+      )
+    : vehicleData == null
+        ? Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.sentiment_dissatisfied_outlined, size: 80, color: Colors.grey),
+                SizedBox(height: 16),
+                Text(
+                  'No vehicle registered yet',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Add your vehicle to get verified and start using RoadResQ services',
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 24),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Add vehicle feature coming soon')),
+                    );
+                  },
+                  icon: const Icon(Icons.add_circle_outline),
+                  label: const Text('Add Vehicle'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF6A48FF),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                   ),
                 ),
+              ],
+            ),
+          )
+        : Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
+            child: Column(
+              children: [
+                const SizedBox(height: 10),
+
+                // LOGO + BRAND
+                Column(
+                  children: [
+                    const Icon(Icons.directions_car, size: 80, color: Color(0xFF6A48FF)),
+                    Text(
+                      vehicleData!["brand"] ?? "Unknown Brand",
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF6A48FF),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 20),
+
+                // CARD with details
+                Card(
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        buildRow("Vehicle Model", vehicleData!["model"] ?? "N/A"),
+                        const SizedBox(height: 20),
+                        buildRow("Number Plate", vehicleData!["plate"] ?? "N/A"),
+                        const SizedBox(height: 20),
+                        buildRow("Color", vehicleData!["color"] ?? "N/A"),
+                        const SizedBox(height: 30),
+
+                        Align(
+                          alignment: Alignment.bottomRight,
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Edit feature coming soon')),
+                              );
+                            },
+                            icon: const Icon(Icons.edit, size: 18),
+                            label: const Text("Edit"),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF6A48FF),
+                              foregroundColor: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
 bottomNavigationBar: BottomNavigationBar(
   type: BottomNavigationBarType.fixed,
   backgroundColor: Colors.white,
