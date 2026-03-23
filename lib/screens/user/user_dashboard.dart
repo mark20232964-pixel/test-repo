@@ -7,6 +7,7 @@ import 'package:geocoding/geocoding.dart';
 import 'user_profile_screen.dart';
 import 'service_request_screen.dart';
 import 'mechanics_near_you.dart';
+import '../user/garage_near_you.dart'; // ✅ FIXED IMPORT
 
 class UserDashboard extends StatefulWidget {
   const UserDashboard({super.key});
@@ -19,9 +20,7 @@ class _UserDashboardState extends State<UserDashboard> {
   int _selectedIndex = 0;
   final TextEditingController searchController = TextEditingController();
 
-  Position? currentPosition;
   bool _isGettingLocation = false;
-
   String userLocation = "Getting location...";
 
   @override
@@ -53,9 +52,7 @@ class _UserDashboardState extends State<UserDashboard> {
         return;
       }
 
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
+      Position position = await Geolocator.getCurrentPosition();
 
       List<Placemark> placemarks = await placemarkFromCoordinates(
         position.latitude,
@@ -84,6 +81,7 @@ class _UserDashboardState extends State<UserDashboard> {
     );
   }
 
+  // 🔥 MECHANICS
   Future<void> _getLocationAndOpenMechanics() async {
     setState(() => _isGettingLocation = true);
 
@@ -96,8 +94,23 @@ class _UserDashboardState extends State<UserDashboard> {
               MechanicsNearYouScreen(currentPosition: position),
         ),
       );
-    } catch (e) {
-      print(e);
+    } finally {
+      setState(() => _isGettingLocation = false);
+    }
+  }
+
+  // 🔥 GARAGES
+  Future<void> _getLocationAndOpenGarages() async {
+    setState(() => _isGettingLocation = true);
+
+    try {
+      Position position = await Geolocator.getCurrentPosition();
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => GaragesNearYouScreen(currentPosition: position),
+        ),
+      );
     } finally {
       setState(() => _isGettingLocation = false);
     }
@@ -116,8 +129,6 @@ class _UserDashboardState extends State<UserDashboard> {
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [Color(0xFF2C2A6A), Color(0xFF4A3FA7)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(25),
@@ -126,25 +137,19 @@ class _UserDashboardState extends State<UserDashboard> {
             ),
             child: Column(
               children: [
-                // Location row
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          "Location",
-                          style: TextStyle(color: Colors.white60, fontSize: 12),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          userLocation,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        const Text("Location",
+                            style:
+                                TextStyle(color: Colors.white60, fontSize: 12)),
+                        Text(userLocation,
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold)),
                       ],
                     ),
                     const CircleAvatar(
@@ -155,10 +160,7 @@ class _UserDashboardState extends State<UserDashboard> {
                     )
                   ],
                 ),
-
                 const SizedBox(height: 20),
-
-                // 🔍 Search bar
                 Row(
                   children: [
                     Expanded(
@@ -182,8 +184,6 @@ class _UserDashboardState extends State<UserDashboard> {
                       ),
                     ),
                     const SizedBox(width: 10),
-
-                    // filter button
                     GestureDetector(
                       onTap: goToSearch,
                       child: Container(
@@ -217,20 +217,14 @@ class _UserDashboardState extends State<UserDashboard> {
                 _buildCard(
                   "Book a\nGarage",
                   "assets/images/garage.jpg",
+                  onTap: _isGettingLocation ? null : _getLocationAndOpenGarages,
                 ),
               ],
             ),
           ),
         ],
       ),
-
-      // 🔥 BOTTOM NAV
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.white,
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.grey,
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
         currentIndex: _selectedIndex,
         onTap: (index) {
           setState(() => _selectedIndex = index);
@@ -261,7 +255,6 @@ class _UserDashboardState extends State<UserDashboard> {
     );
   }
 
-  // 🔥 CARD UI
   Widget _buildCard(String title, String image, {VoidCallback? onTap}) {
     return GestureDetector(
       onTap: onTap,
