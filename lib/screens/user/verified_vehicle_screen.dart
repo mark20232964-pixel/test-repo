@@ -13,6 +13,7 @@ class VerifiedVehicleScreen extends StatefulWidget {
 class _VerifiedVehicleScreenState extends State<VerifiedVehicleScreen> {
   Map<String, dynamic>? vehicleData;
   bool isLoading = true;
+  int _selectedIndex = 3; // start with profile tab highlighted
 
   StreamSubscription<QuerySnapshot>? _subscription;
 
@@ -135,14 +136,19 @@ class _VerifiedVehicleScreenState extends State<VerifiedVehicleScreen> {
                     ],
                   ),
                 ),
-                bottomNavigationBar: BottomNavigationBar(
+bottomNavigationBar: BottomNavigationBar(
   type: BottomNavigationBarType.fixed,
   backgroundColor: Colors.white,
   selectedItemColor: const Color(0xFF6A48FF),
   unselectedItemColor: const Color.fromARGB(255, 0, 0, 0),
   showSelectedLabels: false,
   showUnselectedLabels: false,
-  currentIndex: 3, // Profile selected (index 3 = avatar)
+  currentIndex: _selectedIndex,
+  onTap: (index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  },
   items: const [
     BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: ""),
     BottomNavigationBarItem(icon: Icon(Icons.favorite_border), label: ""),
