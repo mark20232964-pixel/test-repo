@@ -86,6 +86,42 @@ class _ChatScreenState extends State<ChatScreen> {
     super.dispose();
   }
 
+  Future<void> _sendMessage() async {
+    final text = _controller.text.trim();
+    if (text.isEmpty) return;
+
+    setState(() {
+      _controller.clear();
+      _hasText = false;
+      _isSending = true;
+    });
+
+    try {
+      await _messageRepository.sendMessage(
+        chatId: _chatId,
+        senderId: _currentUserId,
+        text: text,
+      );
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_scrollController.hasClients) {
+          _scrollController.animateTo(
+            _scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSending = false);
+    }
+  }
+
   String _formatTime(dynamic timestamp) {
     if (timestamp == null) return '';
     final dt = DateTime.parse(timestamp as String);
@@ -276,11 +312,19 @@ class _ChatScreenState extends State<ChatScreen> {
                   : Colors.grey.shade300,
               shape: BoxShape.circle,
             ),
-            child: IconButton(
+            child: _isSending
+                ? const Padding(
+              padding: EdgeInsets.all(12),
+              child: CircularProgressIndicator(
+                  color: Colors.white, strokeWidth: 2),
+            )
+                : IconButton(
               padding: EdgeInsets.zero,
               icon: const Icon(Icons.send_rounded,
                   size: 20, color: Colors.white),
-              onPressed: null, // wired in next commit
+              onPressed: _hasText && !_isSending && !_isInitializing
+                  ? _sendMessage
+                  : null,
             ),
           ),
         ],
