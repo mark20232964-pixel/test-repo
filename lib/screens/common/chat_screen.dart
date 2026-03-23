@@ -110,6 +110,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   child: CircularProgressIndicator(color: _primary))
                   : _buildMessageList(),
             ),
+            _buildInputBar(),
           ],
         ),
       ),
@@ -223,6 +224,66 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildInputBar() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, -3)),
+        ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFFF5F5F7),
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: TextField(
+                controller: _controller,
+                onChanged: (v) =>
+                    setState(() => _hasText = v.trim().isNotEmpty),
+                textCapitalization: TextCapitalization.sentences,
+                style: const TextStyle(fontSize: 14, color: Colors.black87),
+                decoration: InputDecoration(
+                  hintText: 'Type a message...',
+                  hintStyle:
+                  TextStyle(fontSize: 14, color: Colors.grey.shade400),
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 12),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: _hasText && !_isSending && !_isInitializing
+                  ? _primary
+                  : Colors.grey.shade300,
+              shape: BoxShape.circle,
+            ),
+            child: IconButton(
+              padding: EdgeInsets.zero,
+              icon: const Icon(Icons.send_rounded,
+                  size: 20, color: Colors.white),
+              onPressed: null, // wired in next commit
+            ),
+          ),
+        ],
       ),
     );
   }
