@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:roadresq/screens/common/chat_screen.dart';
 import 'provider_request_details.dart';
 
 class ProviderOngoingScreen extends StatefulWidget {
@@ -128,7 +129,6 @@ class _ProviderOngoingScreenState extends State<ProviderOngoingScreen> {
               final data = doc.data() as Map<String, dynamic>;
 
               startLiveTracking(doc.id);
-
               deleteIfExpired(doc);
 
               if (isExpired(data['timestamp'])) {
@@ -231,7 +231,14 @@ class _ProviderOngoingScreenState extends State<ProviderOngoingScreen> {
                                   label: const Text("Call"),
                                 ),
                                 ElevatedButton.icon(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                      Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>  ChatScreen(schedule: data),
+                                      ),
+                                      );
+                                      },
                                   icon: const Icon(Icons.chat),
                                   label: const Text("Chat"),
                                 ),
