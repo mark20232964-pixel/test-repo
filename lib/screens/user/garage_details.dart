@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:roadresq/screens/user/schedule_mechanic.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class GarageDetailsScreen extends StatefulWidget {
@@ -121,9 +123,16 @@ class _GarageDetailsScreenState extends State<GarageDetailsScreen> {
   }
 
   void _bookNow() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Booking feature coming soon")),
-    );
+    Map<String, dynamic> schedule = {
+      'providerId': widget.garageId,
+      'name': widget.name,
+      'location': GeoPoint(widget.location.latitude, widget.location.longitude),
+      'description': widget.description,
+      'userLocation': GeoPoint(userLocation!.latitude, userLocation!.longitude)
+    };
+
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context)=>ScheduleMechanicScreen(schedule: schedule)));
   }
 
   @override
@@ -184,7 +193,7 @@ class _GarageDetailsScreenState extends State<GarageDetailsScreen> {
                   decoration: const BoxDecoration(
                     color: Colors.white,
                     borderRadius:
-                        BorderRadius.vertical(top: Radius.circular(25)),
+                    BorderRadius.vertical(top: Radius.circular(25)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -211,7 +220,7 @@ class _GarageDetailsScreenState extends State<GarageDetailsScreen> {
                                 backgroundColor: Colors.grey[300],
                                 foregroundColor: Colors.black87,
                                 padding:
-                                    const EdgeInsets.symmetric(vertical: 16),
+                                const EdgeInsets.symmetric(vertical: 16),
                               ),
                             ),
                           ),
@@ -222,7 +231,7 @@ class _GarageDetailsScreenState extends State<GarageDetailsScreen> {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF6A48FF),
                                 padding:
-                                    const EdgeInsets.symmetric(vertical: 16),
+                                const EdgeInsets.symmetric(vertical: 16),
                               ),
                               child: const Text(
                                 "Book Now",
