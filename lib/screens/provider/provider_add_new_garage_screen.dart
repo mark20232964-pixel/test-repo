@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 
 class ProviderAddNewGarageScreen extends StatefulWidget {
   const ProviderAddNewGarageScreen({super.key});
@@ -79,63 +80,26 @@ class _ProviderAddNewGarageScreenState
   }
 
   Future<void> _pickLocation() async {
-    setState(() => _isGettingLocation = true);
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const MapPickerScreen(),
+      ),
+    );
 
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enable location services')),
-      );
-      setState(() => _isGettingLocation = false);
-      return;
-    }
-
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Location permission denied')),
-        );
-        setState(() => _isGettingLocation = false);
-        return;
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Location permission permanently denied. Enable in settings.',
-          ),
-        ),
-      );
-      return;
-    }
-
-    try {
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-
+    if (result != null && result is LatLng) {
       setState(() {
-        _currentLocation = LatLng(position.latitude, position.longitude);
+        _currentLocation = result;
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Location set: ${position.latitude.toStringAsFixed(6)}, '
-            '${position.longitude.toStringAsFixed(6)}',
+            'Location selected: ${result.latitude.toStringAsFixed(6)}, '
+            '${result.longitude.toStringAsFixed(6)}',
           ),
         ),
       );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to get location: $e')),
-      );
-    } finally {
-      setState(() => _isGettingLocation = false);
     }
   }
 
@@ -514,6 +478,83 @@ class _ProviderAddNewGarageScreenState
         borderSide: BorderSide.none,
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    );
+  }
+}
+
+///////////////////////////////////////////////////////////////
+/// 🔥 MAP PICKER SCREEN (DO NOT CHANGE UI ABOVE)
+///////////////////////////////////////////////////////////////
+
+class MapPickerScreen extends StatefulWidget {
+  const MapPickerScreen({super.key});
+
+  @override
+  State<MapPickerScreen> createState() => _MapPickerScreenState();
+}
+
+class _MapPickerScreenState extends State<MapPickerScreen> {
+  LatLng _pickedLocation = const LatLng(6.9271, 79.8612); // default
+  GoogleMapController? _mapController;
+
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentLocation();
+  }
+
+  Future<void> _getCurrentLocation() async {
+    try {
+      Position pos = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      final loc = LatLng(pos.latitude, pos.longitude);
+
+      setState(() => _pickedLocation = loc);
+
+      _mapController?.animateCamera(
+        CameraUpdate.newLatLngZoom(loc, 16),
+      );
+    } catch (e) {
+      // silent fail (no UI break)
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Pick Location")),
+      body: Stack(
+        children: [
+          GoogleMap(
+            initialCameraPosition:
+                CameraPosition(target: _pickedLocation, zoom: 14),
+            onMapCreated: (controller) => _mapController = controller,
+            myLocationEnabled: true,
+            myLocationButtonEnabled: true,
+            onCameraMove: (position) {
+              _pickedLocation = position.target;
+            },
+          ),
+
+          // Center Pin
+          const Center(
+            child: Icon(Icons.location_pin, size: 45, color: Colors.red),
+          ),
+
+          // Confirm Button
+          Positioned(
+            bottom: 30,
+            left: 20,
+            right: 20,
+            child: ElevatedButton(
+              onPressed: () => Navigator.pop(context, _pickedLocation),
+              child: const Text("Confirm Location"),
+            ),
+          )
+        ],
+      ),
     );
   }
 }
