@@ -62,31 +62,50 @@ class _ProviderUpcomingSchedulesScreenState extends State<ProviderUpcomingSchedu
           const Divider(height: 1),
 
           Expanded(
-  child: StreamBuilder<QuerySnapshot>(
-    stream: _requestsStream,
-    builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return const Center(child: CircularProgressIndicator());
-      }
+            child: StreamBuilder<QuerySnapshot>(
+              stream: _requestsStream,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-      if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-        return const Center(
-          child: Text(
-            "No upcoming schedules yet.",
-            style: TextStyle(fontSize: 16, color: Colors.grey),
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      "No upcoming schedules yet.",
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                    ),
+                  );
+                }
+
+                // 🔥 FILTER BY SELECTED DAY
+                final requestsForDay = snapshot.data!.docs.where((doc) {
+                  final data = doc.data() as Map<String, dynamic>;
+                  final ts = data['scheduledTime'] as Timestamp?;
+                  return ts != null && isSameDay(ts.toDate(), _selectedDay);
+                }).toList();
+
+                if (requestsForDay.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      "No schedules for selected day.",
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                    ),
+                  );
+                }
+
+                return Center(
+                  child: Text(
+                    "Schedules for day: ${requestsForDay.length}",
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
-        );
-      }
-
-      return Center(
-        child: Text(
-          "Total Requests: ${snapshot.data!.docs.length}",
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-      );
-    },
-  ),
-),
         ],
       ),
     );
