@@ -61,11 +61,32 @@ class _ProviderUpcomingSchedulesScreenState extends State<ProviderUpcomingSchedu
 
           const Divider(height: 1),
 
-          const Expanded(
-            child: Center(
-              child: Text('Loading schedules...'),
-            ),
+          Expanded(
+  child: StreamBuilder<QuerySnapshot>(
+    stream: _requestsStream,
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return const Center(child: CircularProgressIndicator());
+      }
+
+      if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+        return const Center(
+          child: Text(
+            "No upcoming schedules yet.",
+            style: TextStyle(fontSize: 16, color: Colors.grey),
           ),
+        );
+      }
+
+      return Center(
+        child: Text(
+          "Total Requests: ${snapshot.data!.docs.length}",
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+      );
+    },
+  ),
+),
         ],
       ),
     );
