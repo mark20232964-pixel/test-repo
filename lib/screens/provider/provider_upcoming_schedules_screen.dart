@@ -12,7 +12,7 @@ class ProviderUpcomingSchedulesScreen extends StatefulWidget {
 
 class _ProviderUpcomingSchedulesScreenState extends State<ProviderUpcomingSchedulesScreen> {
   DateTime _focusedDay = DateTime.now();
-  DateTime _selectedDay = DateTime.now();
+  DateTime? _selectedDay;
 
   Stream<QuerySnapshot>? _requestsStream;
 
@@ -34,6 +34,15 @@ class _ProviderUpcomingSchedulesScreenState extends State<ProviderUpcomingSchedu
   bool isSameDay(DateTime? a, DateTime? b) {
     if (a == null || b == null) return false;
     return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
+  // 🔥 Get event days for calendar markers
+  List<DateTime> _getEventDays(List<QueryDocumentSnapshot> docs) {
+    return docs.map((doc) {
+      final data = doc.data() as Map<String, dynamic>;
+      final ts = data['scheduledTime'] as Timestamp?;
+      return ts?.toDate();
+    }).whereType<DateTime>().toList();
   }
 
   Future<void> _acceptRequest(String requestId) async {
@@ -81,16 +90,47 @@ class _ProviderUpcomingSchedulesScreenState extends State<ProviderUpcomingSchedu
       ),
       body: Column(
         children: [
-          TableCalendar(
-            firstDay: DateTime(2024),
-            lastDay: DateTime(2027),
-            focusedDay: _focusedDay,
-            selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-            onDaySelected: (selectedDay, focusedDay) {
-              setState(() {
-                _selectedDay = selectedDay;
-                _focusedDay = focusedDay;
-              });
+          // 🔥 Calendar with markers
+          StreamBuilder<QuerySnapshot>(
+            stream: _requestsStream,
+            builder: (context, snapshot) {
+              final docs = snapshot.data?.docs ?? [];
+              final eventDays = _getEventDays(docs);
+
+              return TableCalendar(
+                firstDay: DateTime(2024),
+                lastDay: DateTime(2027),
+                focusedDay: _focusedDay,
+                selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+
+                eventLoader: (day) {
+                  return eventDays
+                      .where((eventDay) => isSameDay(eventDay, day))
+                      .toList();
+                },
+
+                onDaySelected: (selectedDay, focusedDay) {
+                  setState(() {
+                    _selectedDay = selectedDay;
+                    _focusedDay = focusedDay;
+                    });
+                },
+
+                calendarStyle: const CalendarStyle(
+                  todayDecoration: BoxDecoration(
+                    color: Colors.blue,
+                    shape: BoxShape.circle,
+                  ),
+                  selectedDecoration: BoxDecoration(
+                    color: Color(0xFF6A48FF),
+                    shape: BoxShape.circle,
+                  ),
+                  markerDecoration: BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              );
             },
           ),
 
