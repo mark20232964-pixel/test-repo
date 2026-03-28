@@ -55,6 +55,21 @@ class _ProviderUpcomingSchedulesScreenState extends State<ProviderUpcomingSchedu
       );
     }
   }
+  Future<void> _declineRequest(String requestId) async {
+  await FirebaseFirestore.instance
+      .collection('requests')
+      .doc(requestId)
+      .delete();
+
+  if (mounted) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Request declined and removed'),
+        backgroundColor: Colors.orange,
+      ),
+    );
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -151,14 +166,25 @@ class _ProviderUpcomingSchedulesScreenState extends State<ProviderUpcomingSchedu
 
                             const SizedBox(height: 12),
 
-                            // ✅ ACCEPT BUTTON
-                            ElevatedButton(
-                              onPressed: () => _acceptRequest(requestId),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green,
-                              ),
-                              child: const Text('Accept'),
-                            ),
+Row(
+  children: [
+    Expanded(
+      child: ElevatedButton(
+        onPressed: () => _acceptRequest(requestId),
+        style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+        child: const Text('Accept'),
+      ),
+    ),
+    const SizedBox(width: 12),
+    Expanded(
+      child: ElevatedButton(
+        onPressed: () => _declineRequest(requestId),
+        style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+        child: const Text('Decline'),
+      ),
+    ),
+  ],
+),
                           ],
                         ),
                       ),
