@@ -36,7 +36,6 @@ class _ProviderUpcomingSchedulesScreenState extends State<ProviderUpcomingSchedu
     return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 
-  // ✅ ACCEPT FUNCTION
   Future<void> _acceptRequest(String requestId) async {
     await FirebaseFirestore.instance
         .collection('requests')
@@ -55,21 +54,22 @@ class _ProviderUpcomingSchedulesScreenState extends State<ProviderUpcomingSchedu
       );
     }
   }
-  Future<void> _declineRequest(String requestId) async {
-  await FirebaseFirestore.instance
-      .collection('requests')
-      .doc(requestId)
-      .delete();
 
-  if (mounted) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Request declined and removed'),
-        backgroundColor: Colors.orange,
-      ),
-    );
+  Future<void> _declineRequest(String requestId) async {
+    await FirebaseFirestore.instance
+        .collection('requests')
+        .doc(requestId)
+        .delete();
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Request declined and removed'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -134,6 +134,7 @@ class _ProviderUpcomingSchedulesScreenState extends State<ProviderUpcomingSchedu
                   itemBuilder: (context, index) {
                     final data = requestsForDay[index].data() as Map<String, dynamic>;
                     final requestId = requestsForDay[index].id;
+                    final status = data['status'] as String? ?? 'pending';
 
                     return Card(
                       margin: const EdgeInsets.only(bottom: 12),
@@ -145,46 +146,79 @@ class _ProviderUpcomingSchedulesScreenState extends State<ProviderUpcomingSchedu
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              data['userName'] ?? 'User',
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                            Row(
+                              children: [
+                                CircleAvatar(
+                                  radius: 24,
+                                  backgroundImage: data['userPhoto'] != null
+                                      ? NetworkImage(data['userPhoto'])
+                                      : null,
+                                  child: data['userPhoto'] == null
+                                      ? const Icon(Icons.person)
+                                      : null,
+                                ),
+                                const SizedBox(width: 12),
+
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        data['userName'] ?? 'User',
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(data['issue'] ?? 'No issue specified'),
+                                      Text(
+                                        (data['scheduledTime'] as Timestamp?)
+                                                ?.toDate()
+                                                .toString()
+                                                .substring(0, 16) ??
+                                            '',
+                                        style: const TextStyle(color: Colors.grey),
+                                      ),
+
+                                      if (status == 'accepted')
+                                        const Padding(
+                                          padding: EdgeInsets.only(top: 4),
+                                          child: Text(
+                                            'Accepted',
+                                            style: TextStyle(
+                                              color: Colors.green,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            if (status == 'pending') ...[
+                              const SizedBox(height: 16),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: ElevatedButton(
+                                      onPressed: () => _acceptRequest(requestId),
+                                      style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                                      child: const Text('Accept'),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: ElevatedButton(
+                                      onPressed: () => _declineRequest(requestId),
+                                      style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                                      child: const Text('Decline'),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(data['issue'] ?? 'No issue specified'),
-                            const SizedBox(height: 4),
-                            Text(
-                              (data['scheduledTime'] as Timestamp?)
-                                      ?.toDate()
-                                      .toString()
-                                      .substring(0, 16) ??
-                                  '',
-                              style: const TextStyle(color: Colors.grey),
-                            ),
-
-                            const SizedBox(height: 12),
-
-Row(
-  children: [
-    Expanded(
-      child: ElevatedButton(
-        onPressed: () => _acceptRequest(requestId),
-        style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-        child: const Text('Accept'),
-      ),
-    ),
-    const SizedBox(width: 12),
-    Expanded(
-      child: ElevatedButton(
-        onPressed: () => _declineRequest(requestId),
-        style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-        child: const Text('Decline'),
-      ),
-    ),
-  ],
-),
+                            ],
                           ],
                         ),
                       ),
