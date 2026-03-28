@@ -9,6 +9,7 @@ import 'our_services_screen.dart';
 import 'add_service_type.dart';
 import 'provider_profile_screen.dart';
 import 'provider_ongoing.dart';
+import 'provider_upcoming_schedules_screen.dart'; 
 
 class ProviderDashboard extends StatefulWidget {
   const ProviderDashboard({super.key});
@@ -170,7 +171,17 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
 
                 const SizedBox(height: 15),
 
-                _buildMenuCard("Calendar", 'assets/images/calendar.jpg'),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ProviderUpcomingSchedulesScreen(),
+                      ),
+                    );
+                  },
+                  child: _buildMenuCard("Calendar", 'assets/images/calendar.jpg'),
+                ),
 
                 const SizedBox(height: 15),
 
