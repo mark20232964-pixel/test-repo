@@ -94,15 +94,46 @@ class _ProviderUpcomingSchedulesScreenState extends State<ProviderUpcomingSchedu
                   );
                 }
 
-                return Center(
-                  child: Text(
-                    "Schedules for day: ${requestsForDay.length}",
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                );
+                return ListView.builder(
+  padding: const EdgeInsets.all(16),
+  itemCount: requestsForDay.length,
+  itemBuilder: (context, index) {
+    final data = requestsForDay[index].data() as Map<String, dynamic>;
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              data['userName'] ?? 'User',
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(data['issue'] ?? 'No issue specified'),
+            const SizedBox(height: 4),
+            Text(
+              (data['scheduledTime'] as Timestamp?)
+                      ?.toDate()
+                      .toString()
+                      .substring(0, 16) ??
+                  '',
+              style: const TextStyle(color: Colors.grey),
+            ),
+          ],
+        ),
+      ),
+    );
+  },
+);
               },
             ),
           ),
