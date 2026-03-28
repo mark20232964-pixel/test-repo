@@ -36,6 +36,26 @@ class _ProviderUpcomingSchedulesScreenState extends State<ProviderUpcomingSchedu
     return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 
+  // ✅ ACCEPT FUNCTION
+  Future<void> _acceptRequest(String requestId) async {
+    await FirebaseFirestore.instance
+        .collection('requests')
+        .doc(requestId)
+        .update({
+      'status': 'accepted',
+      'acceptedAt': FieldValue.serverTimestamp(),
+    });
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Request accepted'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,7 +98,6 @@ class _ProviderUpcomingSchedulesScreenState extends State<ProviderUpcomingSchedu
                   );
                 }
 
-                // 🔥 FILTER BY SELECTED DAY
                 final requestsForDay = snapshot.data!.docs.where((doc) {
                   final data = doc.data() as Map<String, dynamic>;
                   final ts = data['scheduledTime'] as Timestamp?;
@@ -95,45 +114,57 @@ class _ProviderUpcomingSchedulesScreenState extends State<ProviderUpcomingSchedu
                 }
 
                 return ListView.builder(
-  padding: const EdgeInsets.all(16),
-  itemCount: requestsForDay.length,
-  itemBuilder: (context, index) {
-    final data = requestsForDay[index].data() as Map<String, dynamic>;
+                  padding: const EdgeInsets.all(16),
+                  itemCount: requestsForDay.length,
+                  itemBuilder: (context, index) {
+                    final data = requestsForDay[index].data() as Map<String, dynamic>;
+                    final requestId = requestsForDay[index].id;
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              data['userName'] ?? 'User',
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(data['issue'] ?? 'No issue specified'),
-            const SizedBox(height: 4),
-            Text(
-              (data['scheduledTime'] as Timestamp?)
-                      ?.toDate()
-                      .toString()
-                      .substring(0, 16) ??
-                  '',
-              style: const TextStyle(color: Colors.grey),
-            ),
-          ],
-        ),
-      ),
-    );
-  },
-);
+                    return Card(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              data['userName'] ?? 'User',
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(data['issue'] ?? 'No issue specified'),
+                            const SizedBox(height: 4),
+                            Text(
+                              (data['scheduledTime'] as Timestamp?)
+                                      ?.toDate()
+                                      .toString()
+                                      .substring(0, 16) ??
+                                  '',
+                              style: const TextStyle(color: Colors.grey),
+                            ),
+
+                            const SizedBox(height: 12),
+
+                            // ✅ ACCEPT BUTTON
+                            ElevatedButton(
+                              onPressed: () => _acceptRequest(requestId),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green,
+                              ),
+                              child: const Text('Accept'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                );
               },
             ),
           ),
