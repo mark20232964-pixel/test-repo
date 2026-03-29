@@ -24,7 +24,7 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
   String? _activePopupRequestId;
   String? _providerId;
 
-  // 🔥 NEW: Location variables (same as user dashboard)
+  //  NEW: Location variables (same as user dashboard)
   bool _isGettingLocation = false;
   String userLocation = "Getting location...";
 
@@ -35,7 +35,7 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
     _loadUserLocation(); // ← Added this
   }
 
-  // 🔥 NEW: Fetch location (copied from user dashboard)
+  //  NEW: Fetch location (copied from user dashboard)
   Future<void> _loadUserLocation() async {
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -200,7 +200,7 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          // 🔥 UPDATED HEADER WITH REAL LOCATION
+          //  UPDATED HEADER WITH REAL LOCATION
           _buildHeader(userLocation),
           Expanded(
             child: ListView(
@@ -312,7 +312,7 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
     );
   }
 
-  // 🔥 MODIFIED: Header now uses real location
+  //  MODIFIED: Header now uses real location
   Widget _buildHeader(String location) {
     return Container(
       padding: const EdgeInsets.only(top: 60, left: 20, right: 20, bottom: 20),

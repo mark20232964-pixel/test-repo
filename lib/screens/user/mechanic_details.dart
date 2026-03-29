@@ -296,18 +296,26 @@ class _MechanicDetailsScreenState extends State<MechanicDetailsScreen> {
                                 Map<String, dynamic> schedule = {
                                   'providerId': widget.providerId,
                                   'name': widget.name,
-                                  'location': GeoPoint(widget.mechanicLocation.latitude, widget.mechanicLocation.longitude),
+                                  'location': GeoPoint(
+                                      widget.mechanicLocation.latitude,
+                                      widget.mechanicLocation.longitude),
                                   'rating': widget.rating,
                                   'reviewsCount': widget.reviewsCount,
                                   'description': widget.description,
                                   'isVerified': widget.isVerified,
                                   'joinedCount': widget.joinedCount,
                                   'photoUrl': widget.photoUrl,
-                                  'userLocation': GeoPoint(userLocation!.latitude, userLocation!.longitude)
+                                  'userLocation': GeoPoint(
+                                      userLocation!.latitude,
+                                      userLocation!.longitude)
                                 };
 
-                                Navigator.push(context,
-                                MaterialPageRoute(builder: (context)=>ScheduleMechanicScreen(schedule: schedule)));
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            ScheduleMechanicScreen(
+                                                schedule: schedule)));
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF6A48FF),

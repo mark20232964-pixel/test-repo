@@ -15,7 +15,7 @@ class AssignMechanicScreen extends StatelessWidget {
       'assignedMechanic': name,
     });
 
-    Navigator.pop(context, name); // 🔥 RETURN NAME
+    Navigator.pop(context, name); //
   }
 
   @override

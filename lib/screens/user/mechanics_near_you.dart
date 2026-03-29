@@ -76,7 +76,7 @@ class MechanicsNearYouScreen extends StatelessWidget {
               final GeoPoint loc = data["location"];
               final dist = _distance(loc);
 
-              // 🔥 FIXED ID
+              //  FIXED ID
               final String id = doc.id;
 
               final name = data["name"] ?? "Unnamed";
@@ -93,7 +93,7 @@ class MechanicsNearYouScreen extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (_) => MechanicDetailsScreen(
-                        providerId: id, // ✅ NOW SAFE
+                        providerId: id, //
                         name: name,
                         mechanicLocation: LatLng(loc.latitude, loc.longitude),
                         rating: rating,

@@ -29,7 +29,7 @@ class _GarageDetailsScreenState extends State<GarageDetailsScreen> {
   List<LatLng> polylineCoordinates = [];
   GoogleMapController? _mapController;
 
-  final String apiKey = "YOUR_API_KEY"; // 🔥 PUT YOUR REAL API KEY
+  final String apiKey = "AIzaSyDC-Vg3GG5uDyDb5JuIzPKeKEIeUXwoXho"; //
 
   @override
   void initState() {
@@ -131,8 +131,10 @@ class _GarageDetailsScreenState extends State<GarageDetailsScreen> {
       'userLocation': GeoPoint(userLocation!.latitude, userLocation!.longitude)
     };
 
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context)=>ScheduleMechanicScreen(schedule: schedule)));
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => ScheduleMechanicScreen(schedule: schedule)));
   }
 
   @override
@@ -193,7 +195,7 @@ class _GarageDetailsScreenState extends State<GarageDetailsScreen> {
                   decoration: const BoxDecoration(
                     color: Colors.white,
                     borderRadius:
-                    BorderRadius.vertical(top: Radius.circular(25)),
+                        BorderRadius.vertical(top: Radius.circular(25)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -220,7 +222,7 @@ class _GarageDetailsScreenState extends State<GarageDetailsScreen> {
                                 backgroundColor: Colors.grey[300],
                                 foregroundColor: Colors.black87,
                                 padding:
-                                const EdgeInsets.symmetric(vertical: 16),
+                                    const EdgeInsets.symmetric(vertical: 16),
                               ),
                             ),
                           ),
@@ -231,7 +233,7 @@ class _GarageDetailsScreenState extends State<GarageDetailsScreen> {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF6A48FF),
                                 padding:
-                                const EdgeInsets.symmetric(vertical: 16),
+                                    const EdgeInsets.symmetric(vertical: 16),
                               ),
                               child: const Text(
                                 "Book Now",
