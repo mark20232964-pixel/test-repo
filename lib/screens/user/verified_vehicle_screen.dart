@@ -3,9 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
 
-/// VerifiedVehicleScreen
-/// Displays the user's verified vehicle information fetched from Firestore.
-/// Supports real-time updates, loading/error/empty states, and bottom navigation.
 class VerifiedVehicleScreen extends StatefulWidget {
   const VerifiedVehicleScreen({super.key});
 
@@ -16,9 +13,15 @@ class VerifiedVehicleScreen extends StatefulWidget {
 class _VerifiedVehicleScreenState extends State<VerifiedVehicleScreen> {
   Map<String, dynamic>? vehicleData;
   bool isLoading = true;
-  int _selectedIndex = 3; // start with profile tab highlighted
+  bool isEditing = false;
+
+  int _selectedIndex = 3;
 
   StreamSubscription<QuerySnapshot>? _subscription;
+
+  late TextEditingController modelController;
+  late TextEditingController plateController;
+  late TextEditingController colorController;
 
   @override
   void initState() {
@@ -41,7 +44,19 @@ class _VerifiedVehicleScreenState extends State<VerifiedVehicleScreen> {
         .listen(
       (snapshot) {
         setState(() {
-          vehicleData = snapshot.docs.isNotEmpty ? snapshot.docs.first.data() : null;
+          vehicleData = snapshot.docs.isNotEmpty
+              ? snapshot.docs.first.data() as Map<String, dynamic>
+              : null;
+
+          if (vehicleData != null) {
+            modelController =
+                TextEditingController(text: vehicleData!["model"]);
+            plateController =
+                TextEditingController(text: vehicleData!["plate"]);
+            colorController =
+                TextEditingController(text: vehicleData!["color"]);
+          }
+
           isLoading = false;
         });
       },
@@ -57,7 +72,36 @@ class _VerifiedVehicleScreenState extends State<VerifiedVehicleScreen> {
   @override
   void dispose() {
     _subscription?.cancel();
+    modelController.dispose();
+    plateController.dispose();
+    colorController.dispose();
     super.dispose();
+  }
+
+  Future<void> _updateVehicle() async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    final query = await FirebaseFirestore.instance
+        .collection("vehicles")
+        .where("userId", isEqualTo: user!.uid)
+        .limit(1)
+        .get();
+
+    if (query.docs.isNotEmpty) {
+      await query.docs.first.reference.update({
+        "model": modelController.text.trim(),
+        "plate": plateController.text.trim(),
+        "color": colorController.text.trim(),
+      });
+    }
+
+    setState(() {
+      isEditing = false;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Vehicle Updated ✅")),
+    );
   }
 
   @override
@@ -67,7 +111,7 @@ class _VerifiedVehicleScreenState extends State<VerifiedVehicleScreen> {
       appBar: AppBar(
         title: const Text("Verified Vehicle"),
         centerTitle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.black,
         elevation: 0,
       ),
       body: isLoading
@@ -75,10 +119,7 @@ class _VerifiedVehicleScreenState extends State<VerifiedVehicleScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(
-                    strokeWidth: 3,
-                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF6A48FF)),
-                  ),
+                  CircularProgressIndicator(),
                   SizedBox(height: 20),
                   Text(
                     'Loading your vehicle details...',
@@ -88,138 +129,102 @@ class _VerifiedVehicleScreenState extends State<VerifiedVehicleScreen> {
               ),
             )
           : vehicleData == null
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 32),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.sentiment_dissatisfied_outlined,
-                            size: 90, color: Colors.grey[400]),
-                        const SizedBox(height: 24),
-                        const Text(
-                          'No vehicle registered yet',
-                          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          'Add your vehicle to get verified and unlock full RoadResQ features',
-                          style: TextStyle(fontSize: 16, color: Colors.grey),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 32),
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            // TODO: Navigate to "Add Vehicle" screen
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Add vehicle feature coming soon')),
-                            );
-                          },
-                          icon: const Icon(Icons.add_circle_outline),
-                          label: const Text('Add Vehicle'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF6A48FF),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+              ? const Center(child: Text("No vehicle found"))
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 10),
+
+                      // ICON + BRAND
+                      Column(
+                        children: [
+                          Icon(
+                            Icons.directions_car_filled,
+                            size: 90,
+                            color: const Color.fromARGB(255, 11, 11, 35),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-              : RefreshIndicator(
-                  onRefresh: () async {
-                    // TODO: Force refresh vehicle data
-                    await Future.delayed(const Duration(milliseconds: 800));
-                    setState(() => isLoading = true);
-                    _listenToVehicle();
-                  },
-                  child: SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 10),
-
-                        // LOGO + BRAND
-                        Column(
-                          children: [
-                            Icon(Icons.directions_car_filled,
-                                size: 90, color: const Color(0xFF6A48FF)),
-                            const SizedBox(height: 12),
-                            Text(
-                              vehicleData!["brand"] ?? "Unknown Brand",
-                              style: const TextStyle(
-                                fontSize: 30,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF6A48FF),
-                              ),
+                          const SizedBox(height: 12),
+                          Text(
+                            vehicleData!["brand"] ?? "Unknown Brand",
+                            style: const TextStyle(
+                              fontSize: 30,
+                              fontWeight: FontWeight.bold,
+                              color: Color.fromARGB(255, 21, 17, 39),
                             ),
-                          ],
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // CARD
+                      Card(
+                        elevation: 4,
+                        color: const Color.fromARGB(255, 206, 206, 206),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
                         ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(24),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              buildRow("Vehicle Model", modelController),
+                              buildRow("Number Plate", plateController),
+                              buildRow("Color", colorController),
 
-                        const SizedBox(height: 24),
+                              const SizedBox(height: 30),
 
-                        // CARD with details
-                        Card(
-                          elevation: 4,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                          child: Padding(
-                            padding: const EdgeInsets.all(24),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                buildRow("Vehicle Model", vehicleData!["model"] ?? "N/A"),
-                                const Divider(height: 32),
-                                buildRow("Number Plate", vehicleData!["plate"] ?? "N/A"),
-                                const Divider(height: 32),
-                                buildRow("Color", vehicleData!["color"] ?? "N/A"),
-                                const SizedBox(height: 40),
-
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child: ElevatedButton.icon(
-                                    onPressed: () {
-                                      // TODO: Implement edit vehicle details
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(content: Text('Edit feature coming soon')),
-                                      );
-                                    },
-                                    icon: const Icon(Icons.edit, size: 18),
-                                    label: const Text("Edit Vehicle"),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF6A48FF),
-                                      foregroundColor: Colors.white,
-                                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-                                    ),
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: ElevatedButton.icon(
+                                  onPressed: () {
+                                    if (!isEditing) {
+                                      setState(() {
+                                        isEditing = true;
+                                      });
+                                    } else {
+                                      _updateVehicle();
+                                    }
+                                  },
+                                  icon: Icon(
+                                      isEditing ? Icons.check : Icons.edit),
+                                  label: Text(
+                                      isEditing ? "Submit" : "Edit Vehicle"),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        const Color.fromARGB(255, 5, 4, 13),
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 32, vertical: 14),
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
+
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.white,
         selectedItemColor: const Color(0xFF6A48FF),
-        unselectedItemColor: const Color.fromARGB(255, 0, 0, 0),
+        unselectedItemColor: Colors.black,
         showSelectedLabels: false,
         showUnselectedLabels: false,
         currentIndex: _selectedIndex,
         onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
+          setState(() => _selectedIndex = index);
         },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: ""),
           BottomNavigationBarItem(icon: Icon(Icons.favorite_border), label: ""),
-          BottomNavigationBarItem(icon: Icon(Icons.shopping_bag_outlined), label: ""),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.shopping_bag_outlined), label: ""),
           BottomNavigationBarItem(
             icon: CircleAvatar(
               radius: 16,
@@ -233,19 +238,36 @@ class _VerifiedVehicleScreenState extends State<VerifiedVehicleScreen> {
     );
   }
 
-  Widget buildRow(String title, String value) {
+  Widget buildRow(String title, TextEditingController controller) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: Color.fromARGB(137, 42, 42, 42),
+          ),
         ),
         const SizedBox(height: 6),
-        Text(
-          value,
-          style: const TextStyle(fontSize: 17),
-        ),
+
+        isEditing
+            ? TextField(
+                controller: controller,
+                decoration: const InputDecoration(
+                  border: UnderlineInputBorder(),
+                ),
+              )
+            : Text(
+                controller.text,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                  color: Color.fromARGB(221, 23, 23, 23),
+                ),
+              ),
+
         const Divider(height: 30),
       ],
     );
