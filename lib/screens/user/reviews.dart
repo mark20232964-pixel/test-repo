@@ -47,8 +47,13 @@ class _ReviewScreenState extends State<ReviewScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF7F8FC),
       appBar: AppBar(
+        backgroundColor: const Color(0xFF1B1B4B),
         title: const Text('Leave a Review'),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -57,8 +62,22 @@ class _ReviewScreenState extends State<ReviewScreen> {
           children: [
             const Text(
               'How was your experience?',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black),
             ),
+
+            const SizedBox(height: 6),
+
+            const Text(
+              'Your feedback helps us improve.',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.black87, // DARKER than before
+              ),
+            ),
+
             const SizedBox(height: 30),
 
             // Rating Stars
