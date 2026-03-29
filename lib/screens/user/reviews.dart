@@ -79,6 +79,28 @@ class _ReviewScreenState extends State<ReviewScreen> {
                 ),
               ),
             ),
+
+            const SizedBox(height: 40),
+
+            SizedBox(
+              width: double.infinity,
+              height: 55,
+              child: ElevatedButton(
+                onPressed: (rating == 0 || isLoading) ? null : submitReview,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1B1B4B),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+                child: isLoading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text('Submit Review',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
+              ),
+            ),
           ],
         ),
       ),
