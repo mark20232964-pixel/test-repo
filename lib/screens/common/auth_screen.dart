@@ -65,6 +65,7 @@ class _AuthScreenState extends State<AuthScreen> {
         await user.reload();
         final currentUser = FirebaseAuth.instance.currentUser;
 
+        // Save to Firestore
         await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
           'uid': user.uid,
           'name': _nameController.text.trim().isNotEmpty
@@ -78,9 +79,11 @@ class _AuthScreenState extends State<AuthScreen> {
         }, SetOptions(merge: true));
       }
 
+      // === IMPORTANT: Save role persistently for when app is killed ===
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('user_role', widget.role);
 
+      // Navigate and clear entire back stack so Recent Apps swipe doesn't go back to login
       if (widget.role == 'provider') {
         Navigator.pushAndRemoveUntil(
           context,
@@ -132,7 +135,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   top: 50,
                   right: 20,
                   child: Container(
-                    width: 80, // 🔥 bigger
+                    width: 80,
                     height: 80,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
@@ -147,7 +150,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     child: ClipOval(
                       child: Image.asset(
                         'assets/images/logo.jpeg',
-                        fit: BoxFit.cover, // 🔥 THIS removes white gaps
+                        fit: BoxFit.cover,
                         width: double.infinity,
                         height: double.infinity,
                       ),
@@ -264,7 +267,7 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 }
 
-// 🌊 CUSTOM WAVE CLIPPER (THIS IS THE MAGIC)
+// 🌊 CUSTOM WAVE CLIPPER (unchanged)
 class WaveClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
