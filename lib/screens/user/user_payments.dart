@@ -30,6 +30,11 @@ class _AppPaymentsScreenState extends State<AppPaymentsScreen> {
     }
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   Future<void> _onRefresh() async {
     await Future.delayed(const Duration(milliseconds: 800));
 
