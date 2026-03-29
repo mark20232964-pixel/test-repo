@@ -8,6 +8,7 @@ import 'screens/common/welcome_screen.dart';
 import 'screens/common/role_selection_screen.dart';
 import 'screens/user/user_dashboard.dart';
 import 'screens/provider/provider_dashboard.dart';
+import 'screens/common/loading_screen.dart'; // ✅ ADD THIS
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -55,28 +56,21 @@ class _AuthWrapperState extends State<AuthWrapper> {
   }
 
   Future<void> _checkLoginStatus() async {
-    await Future.delayed(
-        const Duration(milliseconds: 400)); // small delay for Firebase
+    await Future.delayed(const Duration(milliseconds: 400));
 
     final prefs = await SharedPreferences.getInstance();
     final savedRole = prefs.getString('user_role');
     final currentUser = FirebaseAuth.instance.currentUser;
 
     if (currentUser != null && savedRole != null) {
-      // User is still logged in → go directly to dashboard
-      if (savedRole == 'provider') {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const ProviderDashboard()),
-        );
-      } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const UserDashboard()),
-        );
-      }
+      // ✅ SHOW LOADING SCREEN FIRST INSTEAD OF DIRECT DASHBOARD
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => LoadingScreen(role: savedRole),
+        ),
+      );
     } else {
-      // Not logged in or no saved role → show welcome
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const WelcomeScreen()),

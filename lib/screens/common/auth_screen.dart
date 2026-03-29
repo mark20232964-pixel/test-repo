@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../user/user_dashboard.dart';
 import '../provider/provider_dashboard.dart';
+import 'loading_screen.dart';
 
 class AuthScreen extends StatefulWidget {
   final String role;
@@ -254,6 +255,7 @@ class _AuthScreenState extends State<AuthScreen> {
     return TextFormField(
       controller: controller,
       obscureText: isPassword,
+      style: const TextStyle(color: Colors.black),
       decoration: InputDecoration(
         labelText: label,
         enabledBorder: const UnderlineInputBorder(

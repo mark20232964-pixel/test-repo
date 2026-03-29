@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'assign_mechanic_screen.dart';
 
-class ProviderRequestDetailsScreen extends StatelessWidget {
+class ProviderRequestDetailsScreen extends StatefulWidget {
   const ProviderRequestDetailsScreen({
     super.key,
     required this.requestId,
@@ -11,10 +12,25 @@ class ProviderRequestDetailsScreen extends StatelessWidget {
   final String requestId;
   final Map<String, dynamic> data;
 
+  @override
+  State<ProviderRequestDetailsScreen> createState() =>
+      _ProviderRequestDetailsScreenState();
+}
+
+class _ProviderRequestDetailsScreenState
+    extends State<ProviderRequestDetailsScreen> {
+  String? assignedMechanic;
+
+  @override
+  void initState() {
+    super.initState();
+    assignedMechanic = widget.data['assignedMechanic'];
+  }
+
   Future<void> completeService(BuildContext context) async {
     await FirebaseFirestore.instance
         .collection('requests')
-        .doc(requestId)
+        .doc(widget.requestId)
         .update({'status': 'completed'});
 
     Navigator.pop(context);
@@ -23,29 +39,44 @@ class ProviderRequestDetailsScreen extends StatelessWidget {
   Future<void> cancelService(BuildContext context) async {
     await FirebaseFirestore.instance
         .collection('requests')
-        .doc(requestId)
+        .doc(widget.requestId)
         .update({'status': 'cancelled'});
 
     Navigator.pop(context);
   }
 
+  Future<void> assignMechanic() async {
+    final selectedMechanic = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AssignMechanicScreen(
+          requestId: widget.requestId,
+        ),
+      ),
+    );
+
+    if (selectedMechanic != null) {
+      setState(() {
+        assignedMechanic = selectedMechanic;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final data = widget.data;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             children: [
-              // 🟣 HEADER
+              // HEADER
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.only(
-                  top: 40,
-                  left: 20,
-                  right: 20,
-                  bottom: 30,
-                ),
+                    top: 40, left: 20, right: 20, bottom: 30),
                 decoration: const BoxDecoration(
                   color: Color(0xFF1B1B4B),
                   borderRadius: BorderRadius.only(
@@ -72,18 +103,49 @@ class ProviderRequestDetailsScreen extends StatelessWidget {
                         fontSize: 16,
                       ),
                     ),
+
+                    const SizedBox(height: 10),
+
+                    // ✅ SHOW ASSIGNED MECHANIC
+                    if (assignedMechanic != null)
+                      Text(
+                        "Assigned Mechanic: $assignedMechanic",
+                        style: const TextStyle(
+                          color: Colors.greenAccent,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                   ],
                 ),
               ),
 
               const SizedBox(height: 30),
 
-              // 🔘 ACTION BUTTONS
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
                   children: [
-                    // ✅ COMPLETE
+                    // 🔥 ASSIGN BUTTON (ONLY IF NOT ASSIGNED)
+                    if (assignedMechanic == null)
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: assignMechanic,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            padding: const EdgeInsets.symmetric(vertical: 15),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                          ),
+                          child: const Text("Assign Mechanic"),
+                        ),
+                      ),
+
+                    if (assignedMechanic == null) const SizedBox(height: 15),
+
+                    // COMPLETE
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -95,16 +157,13 @@ class ProviderRequestDetailsScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(15),
                           ),
                         ),
-                        child: const Text(
-                          "Service Completed",
-                          style: TextStyle(fontSize: 16),
-                        ),
+                        child: const Text("Service Completed"),
                       ),
                     ),
 
                     const SizedBox(height: 15),
 
-                    // ❌ CANCEL
+                    // CANCEL
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -116,22 +175,17 @@ class ProviderRequestDetailsScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(15),
                           ),
                         ),
-                        child: const Text(
-                          "Cancel Service",
-                          style: TextStyle(fontSize: 16),
-                        ),
+                        child: const Text("Cancel Service"),
                       ),
                     ),
 
                     const SizedBox(height: 15),
 
-                    // 💳 PAYMENT
+                    // PAYMENT
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () {
-                          // TODO: payment logic
-                        },
+                        onPressed: () {},
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.deepPurple,
                           padding: const EdgeInsets.symmetric(vertical: 15),
@@ -139,10 +193,7 @@ class ProviderRequestDetailsScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(15),
                           ),
                         ),
-                        child: const Text(
-                          "Proceed to Payment",
-                          style: TextStyle(fontSize: 16),
-                        ),
+                        child: const Text("Proceed to Payment"),
                       ),
                     ),
                   ],
