@@ -43,6 +43,7 @@ class _AppPaymentsScreenState extends State<AppPaymentsScreen> {
         const SnackBar(
           content: Text("Refreshed Successfully"),
           duration: Duration(seconds: 1),
+          behavior: SnackBarBehavior.floating,
         ),
       );
     }
