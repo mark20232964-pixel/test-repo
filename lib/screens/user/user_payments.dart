@@ -99,7 +99,74 @@ class _AppPaymentsScreenState extends State<AppPaymentsScreen> {
                   ],
                 ),
               ),
-              const Expanded(child: Center(child: Text("List coming soon..."))),
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: docs.length,
+                  itemBuilder: (context, index) {
+                    final data = docs[index].data() as Map<String, dynamic>;
+                    final timestamp =
+                        (data['timestamp'] as Timestamp?)?.toDate().toLocal() ??
+                            DateTime.now();
+                    final status = data['status'] ?? "Unknown";
+                    final date =
+                        "${timestamp.day}/${timestamp.month}/${timestamp.year}";
+
+                    return Card(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      child: ListTile(
+                        leading:
+                            const Icon(Icons.check_circle, color: Colors.green),
+                        title: Text(
+                          data['serviceType'] ?? data['issue'] ?? 'Service',
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        subtitle: Text(date),
+                        trailing: Text(
+                          "LKR ${(data['amount'] as num?)?.toStringAsFixed(0) ?? '0'}",
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1B1B4B),
+                          ),
+                        ),
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: const Text("Payment Details"),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                        "Service: ${data['serviceType'] ?? data['issue'] ?? 'N/A'}"),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                        "Amount: LKR ${(data['amount'] as num?)?.toStringAsFixed(0) ?? '0'}"),
+                                    const SizedBox(height: 8),
+                                    Text("Status: $status"),
+                                    const SizedBox(height: 8),
+                                    Text("Date: $date"),
+                                  ],
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text("Close"),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
             ],
           );
         },
