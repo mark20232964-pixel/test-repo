@@ -68,11 +68,10 @@ class _AppPaymentsScreenState extends State<AppPaymentsScreen> {
             );
           }
 
-          double total = 0;
-          for (var doc in docs) {
+          double total = docs.fold(0.0, (sum, doc) {
             final data = doc.data() as Map<String, dynamic>;
-            total += (data['amount'] as num?)?.toDouble() ?? 0;
-          }
+            return sum + ((data['amount'] as num?)?.toDouble() ?? 0.0);
+          });
 
           return Column(
             children: [
