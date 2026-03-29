@@ -62,16 +62,46 @@ class _AppPaymentsScreenState extends State<AppPaymentsScreen> {
                     "No completed payments yet",
                     style: TextStyle(fontSize: 20, color: Colors.grey),
                   ),
-                  const Text(
-                    "Your payment history will appear here",
-                    style: TextStyle(color: Colors.grey),
-                  ),
                 ],
               ),
             );
           }
 
-          return const Center(child: Text("Payments loaded successfully"));
+          double total = 0;
+          for (var doc in docs) {
+            final data = doc.data() as Map<String, dynamic>;
+            total += (data['amount'] as num?)?.toDouble() ?? 0;
+          }
+
+          return Column(
+            children: [
+              Container(
+                width: double.infinity,
+                margin: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1B1B4B),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  children: [
+                    const Text("Total Spent",
+                        style: TextStyle(color: Colors.white70)),
+                    const SizedBox(height: 8),
+                    Text(
+                      "LKR ${total.toStringAsFixed(0)}",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Expanded(child: Center(child: Text("List coming soon..."))),
+            ],
+          );
         },
       ),
     );
