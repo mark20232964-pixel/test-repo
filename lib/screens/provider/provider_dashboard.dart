@@ -9,7 +9,7 @@ import 'our_services_screen.dart';
 import 'add_service_type.dart';
 import 'provider_profile_screen.dart';
 import 'provider_ongoing.dart';
-import 'provider_upcoming_schedules_screen.dart'; 
+import 'provider_upcoming_schedules_screen.dart';
 
 class ProviderDashboard extends StatefulWidget {
   const ProviderDashboard({super.key});
@@ -29,26 +29,33 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
     listenForRequests();
   }
 
-  // 🔥 REAL-TIME REQUEST LISTENER
+  // 🔥 FIXED REAL-TIME LISTENER
   void listenForRequests() async {
-    _providerId = await AuthService().currentUser?.uid;
-    print(_providerId);
+    _providerId = FirebaseAuth.instance.currentUser?.uid;
+
     FirebaseFirestore.instance
         .collection('requests')
-        .where('providerId', isEqualTo: _providerId)
         .where('status', isEqualTo: 'pending')
         .snapshots()
-        .listen((snapshot) async {
+        .listen((snapshot) {
+      if (snapshot.docs.isEmpty) return;
 
-          var docs = await snapshot.docs;
-          if (docs.isEmpty) return;
+      for (var doc in snapshot.docs) {
+        final data = doc.data() as Map<String, dynamic>;
 
-        final doc = snapshot.docs.first;
-        if (_activePopupRequestId == doc.id) return;
+        // ✅ Only handle pending requests
+        if (data['status'] != 'pending') continue;
+
+        // ✅ Prevent duplicate popup
+        if (_activePopupRequestId == doc.id) continue;
 
         _activePopupRequestId = doc.id;
 
-      showEmergencyPopup(doc);
+        if (!mounted) return;
+
+        showEmergencyPopup(doc);
+        break; // show only one popup at a time
+      }
     });
   }
 
@@ -91,8 +98,11 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () async {
+                        _activePopupRequestId = null;
                         await declineRequest(doc.id);
-                        Navigator.pop(context);
+                        if (context.mounted) {
+                          Navigator.of(context).pop();
+                        }
                       },
                       child: const Text("Decline"),
                     ),
@@ -101,8 +111,11 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () async {
+                        _activePopupRequestId = null;
                         await acceptRequest(doc.id);
-                        Navigator.pop(context);
+                        if (context.mounted) {
+                          Navigator.of(context).pop();
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.deepPurple,
@@ -121,14 +134,15 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
 
   // ✅ ACCEPT
   Future<void> acceptRequest(String requestId) async {
-    // final providerId = FirebaseAuth.instance.currentUser?.uid ?? "provider";
+    print("ACCEPT CLICKED: $requestId");
 
     await FirebaseFirestore.instance
         .collection('requests')
         .doc(requestId)
-        .update({'status': 'accepted', 'providerId': _providerId});
-
-    _activePopupRequestId = null;
+        .update({
+      'status': 'accepted',
+      'providerId': _providerId,
+    });
   }
 
   // ❌ DECLINE
@@ -136,9 +150,9 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
     await FirebaseFirestore.instance
         .collection('requests')
         .doc(requestId)
-        .update({'status': 'declined'});
-
-    _activePopupRequestId = null;
+        .update({
+      'status': 'declined',
+    });
   }
 
   // ================= UI =================
@@ -153,7 +167,6 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               children: [
-                // 🔥 YOUR FEATURE (kept)
                 GestureDetector(
                   onTap: () {
                     Navigator.push(
@@ -168,23 +181,21 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
                     'assets/images/ongoing.jpg',
                   ),
                 ),
-
                 const SizedBox(height: 15),
-
                 GestureDetector(
                   onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const ProviderUpcomingSchedulesScreen(),
+                        builder: (context) =>
+                            const ProviderUpcomingSchedulesScreen(),
                       ),
                     );
                   },
-                  child: _buildMenuCard("Calendar", 'assets/images/calendar.jpg'),
+                  child:
+                      _buildMenuCard("Calendar", 'assets/images/calendar.jpg'),
                 ),
-
                 const SizedBox(height: 15),
-
                 GestureDetector(
                   onTap: () {
                     Navigator.push(
@@ -204,8 +215,6 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
           ),
         ],
       ),
-
-      // 🔥 MERGED NAVIGATION
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.white,
