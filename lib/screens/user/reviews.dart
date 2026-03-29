@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ReviewScreen extends StatefulWidget {
   const ReviewScreen({super.key});
@@ -17,7 +19,27 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
     setState(() => isLoading = true);
 
-    // TODO: Implement Firestore submission
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+
+      await FirebaseFirestore.instance.collection("reviews").add({
+        "userId": user?.uid,
+        "rating": rating,
+        "comment": commentController.text.trim(),
+        "timestamp": FieldValue.serverTimestamp(),
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Review submitted successfully!")),
+        );
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
+    }
 
     setState(() => isLoading = false);
   }
