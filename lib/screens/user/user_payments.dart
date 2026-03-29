@@ -123,7 +123,16 @@ class _AppPaymentsScreenState extends State<AppPaymentsScreen> {
                           data['serviceType'] ?? data['issue'] ?? 'Service',
                           style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
-                        subtitle: Text(date),
+                        subtitle: Padding(
+                          padding: const EdgeInsets.only(top: 6),
+                          child: Text(
+                            date,
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
                         trailing: Text(
                           "LKR ${(data['amount'] as num?)?.toStringAsFixed(0) ?? '0'}",
                           style: const TextStyle(
