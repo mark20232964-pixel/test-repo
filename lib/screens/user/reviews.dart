@@ -66,12 +66,15 @@ class _ReviewScreenState extends State<ReviewScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const SizedBox(height: 10),
+
             const Text(
               'How was your experience?',
               style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black),
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.black, // DARKER TEXT
+              ),
             ),
 
             const SizedBox(height: 6),
@@ -86,14 +89,14 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
             const SizedBox(height: 30),
 
-            // Rating Stars
+            // ⭐ Rating
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(5, (index) {
                 return IconButton(
                   icon: Icon(
                     index < rating ? Icons.star : Icons.star_border,
-                    size: 50,
+                    size: 42,
                     color: index < rating ? Colors.amber : Colors.grey,
                   ),
                   onPressed: () => setState(() => rating = index + 1),
@@ -103,7 +106,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
             const SizedBox(height: 30),
 
-            // Comment Box
+            // 💬 Comment box (modern card style)
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -114,21 +117,24 @@ class _ReviewScreenState extends State<ReviewScreen> {
                     color: Colors.black.withOpacity(0.05),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
-                  ),
+                  )
                 ],
               ),
               child: TextField(
                 controller: commentController,
                 maxLines: 5,
+                style: const TextStyle(color: Colors.black), // DARK TEXT
                 decoration: const InputDecoration(
                   border: InputBorder.none,
                   hintText: 'Tell us what you liked...',
+                  hintStyle: TextStyle(color: Colors.black54),
                 ),
               ),
             ),
 
             const SizedBox(height: 40),
 
+            // 🚀 Submit Button
             SizedBox(
               width: double.infinity,
               height: 55,
@@ -137,15 +143,20 @@ class _ReviewScreenState extends State<ReviewScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF1B1B4B),
                   foregroundColor: Colors.white,
+                  disabledBackgroundColor: Colors.grey[300],
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
                 ),
                 child: isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text('Submit Review',
+                    : const Text(
+                        'Submit Review',
                         style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold)),
+                          fontSize: 18, // ✅ requested size
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
               ),
             ),
           ],
@@ -154,5 +165,3 @@ class _ReviewScreenState extends State<ReviewScreen> {
     );
   }
 }
-
-// ... previous code
