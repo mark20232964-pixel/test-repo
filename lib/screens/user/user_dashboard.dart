@@ -214,7 +214,7 @@ class _UserDashboardState extends State<UserDashboard> {
             ),
           ),
 
-          // 🔥 BODY
+          // BODY
           Expanded(
             child: ListView(
               padding: const EdgeInsets.all(20),
@@ -237,10 +237,19 @@ class _UserDashboardState extends State<UserDashboard> {
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.white,
+        selectedItemColor: const Color(0xFF6A48FF),
+        unselectedItemColor: Colors.black87,
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
         currentIndex: _selectedIndex,
         onTap: (index) {
-          setState(() => _selectedIndex = index);
+          setState(() {
+            _selectedIndex = index;
+          });
 
+          // Only Profile needs navigation (index 3)
           if (index == 3) {
             Navigator.push(
               context,
@@ -249,6 +258,8 @@ class _UserDashboardState extends State<UserDashboard> {
               ),
             );
           }
+          // Home (index 0), Favorite (1), Bag (2) will just change the tab
+          // (we will handle content switching in the next step)
         },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: ""),
