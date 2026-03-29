@@ -14,6 +14,12 @@ class _ReviewScreenState extends State<ReviewScreen> {
   final TextEditingController commentController = TextEditingController();
   bool isLoading = false;
 
+  @override
+  void dispose() {
+    commentController.dispose();
+    super.dispose();
+  }
+
   Future<void> submitReview() async {
     if (rating == 0) return;
 
