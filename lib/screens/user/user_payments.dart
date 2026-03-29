@@ -49,25 +49,29 @@ class _AppPaymentsScreenState extends State<AppPaymentsScreen> {
             return const Center(child: Text("No payments data available"));
           }
 
-          final payments = snapshot.data!.docs;
+          final docs = snapshot.data?.docs ?? [];
 
-          return ListView.builder(
-            itemCount: payments.length,
-            itemBuilder: (context, index) {
-              final payment = payments[index];
-              final amount = payment["amount"];
-              final date = payment["timestamp"] != null
-                  ? (payment["timestamp"] as Timestamp).toDate()
-                  : DateTime.now();
-              final status = payment["status"] ?? "Unknown";
+          if (docs.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.receipt_long, size: 80, color: Colors.grey[400]),
+                  const SizedBox(height: 16),
+                  const Text(
+                    "No completed payments yet",
+                    style: TextStyle(fontSize: 20, color: Colors.grey),
+                  ),
+                  const Text(
+                    "Your payment history will appear here",
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ],
+              ),
+            );
+          }
 
-              return ListTile(
-                leading: const Icon(Icons.payment),
-                title: Text("\$$amount"),
-                subtitle: Text("Date: ${date.toLocal()} - Status: $status"),
-              );
-            },
-          );
+          return const Center(child: Text("Payments loaded successfully"));
         },
       ),
     );
