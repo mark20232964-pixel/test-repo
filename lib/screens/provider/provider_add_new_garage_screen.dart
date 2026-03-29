@@ -154,7 +154,11 @@ class _ProviderAddNewGarageScreenState
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) throw Exception('User not logged in');
 
-      await FirebaseFirestore.instance.collection('garages').add({
+      // UPDATED: Use same document ID (user.uid) + merge so it updates instead of creating duplicate
+      await FirebaseFirestore.instance
+          .collection('garages')
+          .doc(user.uid) // ← Key change
+          .set({
         'name': _nameController.text.trim(),
         'email': _emailController.text.trim(),
         'contact': _contactController.text.trim(),
@@ -167,9 +171,8 @@ class _ProviderAddNewGarageScreenState
           _currentLocation!.longitude,
         ),
         'createdBy': user.uid,
-        'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
-      });
+      }, SetOptions(merge: true)); // ← Key change
 
       if (!mounted) return;
 
@@ -194,7 +197,7 @@ class _ProviderAddNewGarageScreenState
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               const Text(
-                'Garage Added Successfully!',
+                'Garage Updated Successfully!',
                 style: TextStyle(fontSize: 16),
               ),
               const SizedBox(height: 24),
@@ -213,6 +216,7 @@ class _ProviderAddNewGarageScreenState
         ),
       );
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed: $e')),
       );

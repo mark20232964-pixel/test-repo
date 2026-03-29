@@ -45,32 +45,37 @@ class _AddMechanicScreenState extends State<AddMechanicScreen> {
       return;
     }
 
-    setState(() {}); // trigger loading if you add _isLoading later
+    setState(() {}); // you can add _isLoading later if you want
 
     try {
       final user = FirebaseAuth.instance.currentUser!;
+
+      // IMPORTANT: Use the same document ID (user.uid) so it updates instead of creating duplicate
       await FirebaseFirestore.instance
           .collection('providers')
-          .doc(user.uid)
-          .set({
-        "type": "mechanic",
-        "name": _nameController.text.trim(),
-        "phone": _phoneController.text.trim(),
-        "location": GeoPoint(
-          _selectedLocation!.latitude,
-          _selectedLocation!.longitude,
-        ),
-        "createdAt": Timestamp.now(),
-      }, SetOptions(merge: true));
+          .doc(user.uid) // ← Uses same UID as document ID
+          .set(
+              {
+            "type": "mechanic",
+            "name": _nameController.text.trim(),
+            "phone": _phoneController.text.trim(),
+            "location": GeoPoint(
+              _selectedLocation!.latitude,
+              _selectedLocation!.longitude,
+            ),
+            "updatedAt": Timestamp.now(), // ← Good to track last update
+          },
+              SetOptions(
+                  merge: true)); // ← merge: true ensures update, not duplicate
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Mechanic added successfully")),
+        const SnackBar(content: Text("Mechanic details updated successfully")),
       );
 
       Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to add mechanic: $e")),
+        SnackBar(content: Text("Failed to update mechanic: $e")),
       );
     }
   }
