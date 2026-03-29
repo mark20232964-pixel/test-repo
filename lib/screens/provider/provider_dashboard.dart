@@ -3,7 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:roadresq/screens/services/service.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 
 import 'our_services_screen.dart';
 import 'add_service_type.dart';
@@ -23,10 +24,55 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
   String? _activePopupRequestId;
   String? _providerId;
 
+  // 🔥 NEW: Location variables (same as user dashboard)
+  bool _isGettingLocation = false;
+  String userLocation = "Getting location...";
+
   @override
   void initState() {
     super.initState();
     listenForRequests();
+    _loadUserLocation(); // ← Added this
+  }
+
+  // 🔥 NEW: Fetch location (copied from user dashboard)
+  Future<void> _loadUserLocation() async {
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        setState(() => userLocation = "Location disabled");
+        return;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          setState(() => userLocation = "Permission denied");
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        setState(() => userLocation = "Permission blocked");
+        return;
+      }
+
+      Position position = await Geolocator.getCurrentPosition();
+
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+
+      Placemark place = placemarks.first;
+
+      setState(() {
+        userLocation = "${place.locality ?? ''}, ${place.country ?? ''}";
+      });
+    } catch (e) {
+      setState(() => userLocation = "Location error");
+    }
   }
 
   void listenForRequests() async {
@@ -42,10 +88,8 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
       for (var doc in snapshot.docs) {
         final data = doc.data() as Map<String, dynamic>;
 
-        // ✅ Only handle pending requests
         if (data['status'] != 'pending') continue;
 
-        // ✅ Prevent duplicate popup
         if (_activePopupRequestId == doc.id) continue;
 
         _activePopupRequestId = doc.id;
@@ -53,7 +97,7 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
         if (!mounted) return;
 
         showEmergencyPopup(doc);
-        break; // show only one popup at a time
+        break;
       }
     });
   }
@@ -131,8 +175,6 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
   }
 
   Future<void> acceptRequest(String requestId) async {
-    print("ACCEPT CLICKED: $requestId");
-
     await FirebaseFirestore.instance
         .collection('requests')
         .doc(requestId)
@@ -158,7 +200,8 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          _buildHeader("New Town, Ratnapura"),
+          // 🔥 UPDATED HEADER WITH REAL LOCATION
+          _buildHeader(userLocation),
           Expanded(
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -269,6 +312,7 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
     );
   }
 
+  // 🔥 MODIFIED: Header now uses real location
   Widget _buildHeader(String location) {
     return Container(
       padding: const EdgeInsets.only(top: 60, left: 20, right: 20, bottom: 20),
