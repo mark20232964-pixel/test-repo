@@ -29,7 +29,6 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
     listenForRequests();
   }
 
-  // 🔥 FIXED REAL-TIME LISTENER
   void listenForRequests() async {
     _providerId = FirebaseAuth.instance.currentUser?.uid;
 
@@ -59,7 +58,6 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
     });
   }
 
-  // 🚨 POPUP
   void showEmergencyPopup(QueryDocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
 
@@ -78,7 +76,7 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
-                "🚨 Emergency Request",
+                " Emergency Request",
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -132,7 +130,6 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
     );
   }
 
-  // ✅ ACCEPT
   Future<void> acceptRequest(String requestId) async {
     print("ACCEPT CLICKED: $requestId");
 
@@ -145,7 +142,6 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
     });
   }
 
-  // ❌ DECLINE
   Future<void> declineRequest(String requestId) async {
     await FirebaseFirestore.instance
         .collection('requests')
